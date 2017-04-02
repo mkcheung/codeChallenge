@@ -9,9 +9,11 @@ use JsonRPC\Exception\AuthenticationFailureException;
 class TreatmentCenter
 {
 
-	const DESIRED_MEETING_DAY = 'monday';
-	const DESIRED_MEETING_TYPES = ['AA', 'NA'];
-	const EPICENTER_PARAMS = [
+	private $jsonRpcClient;
+
+	private $desiredMeetingDay = 'monday';
+	private $desiredMeetingTypes = ['AA', 'NA'];
+	private $epicenterParams = [
             [
                 [
                     "state_abbr" => "CA",
@@ -20,21 +22,27 @@ class TreatmentCenter
             ]
         ];
 
-    const ORIGIN_ADDRESS = [
+    private $originAddress = [
     	'street_address' => '517 4th Ave.',
     	'city' => 'San Diego',
     	'state' => 'CA',
     	'zip_code' => '92101'
     ];
 
+    public function __construct($treatmentCenterUrl, $userId, $userPassword)
+    {
+
+    	$this->jsonRpcClient = new Client($treatmentCenterUrl);
+        $this->jsonRpcClient->authentication($userId, $userPassword);
+    }
+
 	public function getTreatmentCenters()
 	{
-        $client = new Client('http://tools.referralsolutionsgroup.com/meetings-api/v1/');
-        $client->authentication('oXO8YKJUL2X3oqSpFpZ5', 'JaiXo2lZRJVn5P4sw0bt');
-        $meetingsWithRegion = $client->execute('byLocals', EPICENTER_PARAMS);
+
+        $meetingsWithRegion = $this->jsonRpcClient->execute('byLocals', $this->epicenterParams);
         $meetingsDesired = $this->extractDesiredMeetings($meetingsWithRegion);
 		$originCoordinates = $this->getOriginLatitudeLongitude();
-		$this->calculateMeetingDistanceFromOrigin($meetingsDesired,$originCoordinates);
+		$this->calculateMeetingDistanceFromOrigin($meetingsDesired, $originCoordinates);
 		$this->sortMeetingsFromOrigin($meetingsDesired);
 
 		return $meetingsDesired;
@@ -46,7 +54,7 @@ class TreatmentCenter
 		$meetingsOnDesiredDay = [];
 
 		foreach($meetingsWithRegion as $meeting){
-			if(($meeting['time']['day'] = DESIRED_MEETING_DAY) && in_array($meeting['meeting_type'], DESIRED_MEETING_TYPES)){
+			if(($meeting['time']['day'] = $this->desiredMeetingDay) && in_array($meeting['meeting_type'], $this->desiredMeetingTypes)){
 				$meetingsOnDesiredDay[] = $meeting;
 			}
 		}
@@ -54,9 +62,10 @@ class TreatmentCenter
 		return $meetingsOnDesiredDay;
 	}
 
-	private function getOriginLatitudeLongitude(){
+	private function getOriginLatitudeLongitude()
+	{
 
-		$googleGeolocationUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode(ORIGIN_ADDRESS['street_address']).','.urlencode(ORIGIN_ADDRESS['city']).','.urlencode(ORIGIN_ADDRESS['state']);
+		$googleGeolocationUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($this->originAddress['street_address']).','.urlencode($this->originAddress['city']).','.urlencode($this->originAddress['state']);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $googleGeolocationUrl);
@@ -69,7 +78,8 @@ class TreatmentCenter
         return $originCoordinates;
 	}
 
-    private function calculateMeetingDistanceFromOrigin(&$meetingsDesired, $originCoordinates) {
+    private function calculateMeetingDistanceFromOrigin(&$meetingsDesired, $originCoordinates)
+    {
 
 		$meetingDistancesFromOrigin = [];
 
@@ -87,7 +97,7 @@ class TreatmentCenter
 
     }
 
-	private static function sortFunct($a, $b)
+	private static function sortByDistance($a, $b)
 	{
 		if ($a['distanceFromOrigin'] == $b['distanceFromOrigin']) {
 			return 0;
@@ -97,7 +107,7 @@ class TreatmentCenter
 
     private function sortMeetingsFromOrigin(&$meetingsDesired) {
 
-    	usort($meetingsDesired, [$this,'sortFunct']);
+    	usort($meetingsDesired, [$this,'sortByDistance']);
     }
 
 }

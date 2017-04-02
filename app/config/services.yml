@@ -1,6 +1,6 @@
 services:
     app.treatment_center:
         class: AppBundle\Services\TreatmentCenter
-        arguments: ~
+        arguments: ['%treatment_center_api_url%', '%treatment_center_user_name%', '%treatment_center_user_password%']
 
 
