@@ -1,0 +1,6 @@
+services:
+    app.treatment_center:
+        class: AppBundle\Services\TreatmentCenter
+        arguments: ~
+
+

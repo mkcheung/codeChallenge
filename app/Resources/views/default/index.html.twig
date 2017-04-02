@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ page_title }}</title>
+    </head>
+    <body>
+        <h1>{{ page_title }}</h1>
+
+        <ul id="navigation">
+                <li><span>ID: </span> <span>Meeting Name</span></li>
+            {% for meeting in results %}
+                <li><span>{{ meeting.id }}</span> <span>{{ meeting.meeting_name }} <span>{{ meeting.distanceFromOrigin }}</span></li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>
