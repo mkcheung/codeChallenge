@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 class DefaultController extends Controller
 {
 
-
-
     /**
      * @Route("/", name="homepage")
      */

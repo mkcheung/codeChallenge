@@ -2,7 +2,7 @@
 
 namespace AppBundle\Services;
 
-use JsonRPC\Client;
+use JsonRPC\Client as JsonRPCClient;
 use JsonRPC\MiddlewareInterface;
 use JsonRPC\Exception\AuthenticationFailureException;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,16 +17,10 @@ class TreatmentCenterService
 
 	private $jsonRpcClient;
 
+	private $meetingsWithinRegion;
+
 	private $desiredMeetingDay = 'monday';
 	private $desiredMeetingTypes = ['AA', 'NA'];
-	private $epicenterParams = [
-            [
-                [
-                    "state_abbr" => "CA",
-                    "city" => "San Diego"
-                ]
-            ]
-        ];
 
     private $originAddress = [
     	'street_address' => '517 4th Ave.',
@@ -36,7 +30,7 @@ class TreatmentCenterService
     ];
 
     public function __construct(
-    	$jsonRpcClient,
+    	JsonRPCClient $jsonRpcClient,
     	$userId,
     	$userPassword
     ) {
@@ -46,33 +40,67 @@ class TreatmentCenterService
 
 	public function getTreatmentCenters(Request $request)
 	{
-        $meetingsWithRegion = $this->jsonRpcClient->execute('byLocals', $this->epicenterParams);
-        $meetingsDesired = $this->extractDesiredMeetings($meetingsWithRegion);
-		$originCoordinates = $this->getOriginLatitudeLongitude();
-		$this->calculateMeetingDistanceFromOrigin($meetingsDesired, $originCoordinates);
-		$this->sortMeetingsFromOrigin($meetingsDesired);
 
-		return $meetingsDesired;
+		$inputParameters = $request->request->all();
+		if(empty($inputParameters)){
+			$inputParameters = $request->query->all();
+		}
+		$this->assembleParameters($inputParameters);
+
+        $this->meetingsWithinRegion = $this->jsonRpcClient->execute('byLocals',
+			[
+				[
+				    [
+				        "state_abbr" => $this->originAddress['state'],
+				        "city" => $this->originAddress['city']
+				    ]
+				]
+			]
+        );
+
+        $desiredMeetings = $this->extractDesiredMeetings();
+
+		$locationCoordinates         = $this->getLocationLatitudeLongitude();
+		$meetingsDistancesCalculated = $this->calculateMeetingDistanceFromLocation($locationCoordinates);
+		$sortedMeetings              = $this->sortMeetingsFromOrigin($meetingsDistancesCalculated);
+
+		$meetingInformation['meetings']        = $sortedMeetings;
+		$meetingInformation['meetingDay']      = ucfirst($this->desiredMeetingDay);
+		$meetingInformation['meetingTypes']    = $this->desiredMeetingTypes;
+		$meetingInformation['locationAddress'] = $this->originAddress;
+
+		return $meetingInformation;
 	}
 
-	private function extractDesiredMeetings($meetingsWithRegion)
-	{
-		$meetingsOnDesiredDay = [];
+	public function extractDesiredMeetings(
+		array $setOfMeetings = null,
+		$preferredMeetingDay = null,
+		array $preferredMeetingTypes = null
+	) {
+		$desiredMeetings = [];
 
-		foreach($meetingsWithRegion as $meeting){
+		$meetings     = (empty($setOfMeetings)) ? $this->meetingsWithinRegion : $setOfMeetings;
+		$meetingDay   = (empty($preferredMeetingDay)) ? $this->desiredMeetingDay : $preferredMeetingDay;
+		$meetingTypes = (empty($preferredMeetingTypes)) ? $this->desiredMeetingTypes : $preferredMeetingTypes;
 
-			if (($meeting['time']['day'] = $this->desiredMeetingDay) && in_array($meeting['meeting_type'], $this->desiredMeetingTypes)){
-				$meetingsOnDesiredDay[] = $meeting;
+		foreach($meetings as $meeting){
+
+			if (($meeting['time']['day'] == $meetingDay) && in_array($meeting['meeting_type'], $meetingTypes)){
+				$desiredMeetings[] = $meeting;
 			}
 		}
 
-		return $meetingsOnDesiredDay;
+		return $desiredMeetings;
 	}
 
-	private function getOriginLatitudeLongitude()
+	public function getLocationLatitudeLongitude(array $address = null)
 	{
 
-		$googleGeolocationUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($this->originAddress['street_address']).','.urlencode($this->originAddress['city']).','.urlencode($this->originAddress['state']);
+		$streetAddress = (empty($address['street_address'])) ? $this->originAddress['street_address'] : $address['street_address'];
+		$city = (empty($address['city'])) ? $this->originAddress['city'] : $address['city'];
+		$state = (empty($address['state'])) ? $this->originAddress['state'] : $address['state'];
+
+		$googleGeolocationUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($streetAddress).','.urlencode($city).','.urlencode($state);
 
 		$client = new GuzzleClient();
 		$res = $client->request('GET', $googleGeolocationUrl);
@@ -80,28 +108,36 @@ class TreatmentCenterService
 
         $geocodeResponse = json_decode($jsonResponse);
         $geoCodeResults = array_shift($geocodeResponse->results);
-        $originCoordinates = $geoCodeResults->geometry->location;
-        return $originCoordinates;
+        $addressCoordinates = $geoCodeResults->geometry->location;
+        return (array) $addressCoordinates;
 	}
 
-    private function calculateMeetingDistanceFromOrigin(
-    	&$meetingsDesired,
-    	$originCoordinates
+    public function calculateMeetingDistanceFromLocation(
+    	array $locationCoordinates,
+    	$meetings = null
     ) {
+
+		$utilizedMeetings = (empty($meetings)) ? $this->meetingsWithinRegion : $meetings;
+
 		$meetingDistancesFromOrigin = [];
 
-		foreach ($meetingsDesired as &$meeting) {
+		foreach ($utilizedMeetings as &$meeting) {
 
-	        $delta_lat = ($originCoordinates->lat) - $meeting['address']['lat'];
-	        $delta_lon = ($originCoordinates->lng) - $meeting['address']['lng'];
-        	$distance  = sin(deg2rad($meeting['address']['lat'])) * sin(deg2rad($originCoordinates->lat)) + cos(deg2rad($meeting['address']['lat'])) * cos(deg2rad($originCoordinates->lat)) * cos(deg2rad($delta_lon)) ;
+	        $delta_lat = ($locationCoordinates['lat']) - $meeting['address']['lat'];
+	        $delta_lon = ($locationCoordinates['lng']) - $meeting['address']['lng'];
+        	$distance  = sin(deg2rad($meeting['address']['lat'])) * sin(deg2rad($locationCoordinates['lat'])) + cos(deg2rad($meeting['address']['lat'])) * cos(deg2rad($locationCoordinates['lat'])) * cos(deg2rad($delta_lon)) ;
 	        $distance  = acos($distance);
 	        $distance  = rad2deg($distance);
 	        $distance  = $distance * static::NAUTICAL_MILES_PER_LAT * static::MILES_PER_NAUT_MILE;
 	        $distance  = round($distance, 6);
 	        $meeting['distanceFromOrigin'] = $distance;
 		}
+		return $utilizedMeetings;
+    }
 
+    public function sortMeetingsFromOrigin($meetingsWithDistancesCalculated) {
+    	usort($meetingsWithDistancesCalculated, [$this,'sortByDistance']);
+    	return $meetingsWithDistancesCalculated;
     }
 
 	private static function sortByDistance($a, $b)
@@ -112,7 +148,29 @@ class TreatmentCenterService
 		return ($a['distanceFromOrigin'] < $b['distanceFromOrigin']) ? -1 : 1;
 	}
 
-    private function sortMeetingsFromOrigin(&$meetingsDesired) {
-    	usort($meetingsDesired, [$this,'sortByDistance']);
-    }
+	private function assembleParameters($incomingParameters)
+	{
+		foreach ($incomingParameters as $key => $value) {
+			switch($key){
+				case 'street_address':
+					$this->originAddress['street_address'] = $value;
+					break;
+				case 'city':
+					$this->originAddress['city'] = $value;
+					break;
+				case 'state':
+					$this->originAddress['state'] = $value;
+					break;
+				case 'zip_code':
+					$this->originAddress['zip_code'] = $value;
+					break;
+				case 'meeting_type':
+					$this->desiredMeetingTypes = $value;
+					break;
+				case 'day':
+					$this->desiredMeetingDay = $value;
+					break;
+			}
+		}
+	}
 }

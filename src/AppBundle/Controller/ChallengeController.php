@@ -116,15 +116,14 @@ class ChallengeController extends Controller {
         ));
 	}
 	/**
-	* @Route("/challenge/meetingsFromOrigin")
+	* @Route("/challenge/meetingsFromLocation")
 	*/
-	public function meetingsFromOriginAction(Request $request)
+	public function meetingsFromLocationAction(Request $request)
 	{
         $treatmentCenter = $this->get('app.treatment_center_service');
-        $results = $treatmentCenter->getTreatmentCenters($request);
+        $meetingInformation = $treatmentCenter->getTreatmentCenters($request);
         return $this->render('default/meeting.html.twig', array(
-            'page_title' => 'Monday Treatment Meetings From RB',
-            'results' => $results,
+            'meetingInformation' => $meetingInformation,
         ));
 	}
 }

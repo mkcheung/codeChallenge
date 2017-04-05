@@ -1,15 +1,28 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{{ page_title }}</title>
+        <title>{{ meetingInformation.meetingDay }}</title>
     </head>
     <body>
-        <h1>{{ page_title }}</h1>
+        <h1>{{ meetingInformation.meetingDay }} Treatment Center Meetings</h1>
+
+        <div>
+            <h2>Meetings sorted by distance from: </h2>
+            <h3>
+                <span>{{ meetingInformation.locationAddress.street_address }}</span></br>
+                <span>{{ meetingInformation.locationAddress.city }}</span>,
+                <span>{{ meetingInformation.locationAddress.state }}</span>
+                <span>{{ meetingInformation.locationAddress.zip_code }}</span></br></br>
+                Meeting Types: {% for meetingType in meetingInformation.meetingTypes %}
+                    <span>{{ meetingType }}</span>
+                {% endfor %}
+            </h3>
+        </div>
 
         <ul id="navigation">
-                <li><span>ID: </span> <span>Meeting Name</span></li>
-            {% for meeting in results %}
-                <li><span>{{ meeting.id }}</span> <span>{{ meeting.meeting_name }} <span>{{ meeting.distanceFromOrigin }}</span></li>
+                <li><span>ID: </span> <span>Meeting Name</span> <span>Meeting Type</span></li>
+            {% for meeting in meetingInformation.meetings %}
+                <li><span>{{ meeting.id }}</span> <span>{{ meeting.meeting_name }} </span> <span>{{ meeting.meeting_type }} </span> <span>{{ meeting.distanceFromOrigin }}</span></li>
             {% endfor %}
         </ul>
     </body>

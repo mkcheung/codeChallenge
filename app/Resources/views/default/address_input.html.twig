@@ -6,7 +6,7 @@
     <body>
         <h1>{{ page_title }}</h1>
 
-        <form action="/challenge/meetingsFromOrigin" method="POST" >
+        <form action="/challenge/meetingsFromLocation" method="POST" >
             Street Address: <input name="street_address"></input></br>
             City: <input name="city"></input></br>
             State: <select name="state">
@@ -16,7 +16,7 @@
             </select>
             Zip Code: <input name="zip_code"></input></br>
             </br>
-            Meeting Types:</br><select multiple name="meeting_type">
+            Meeting Types:</br><select multiple name="meeting_type[]">
             {% for typeAbrv,type in meeting_types %}
                 <option value="{{ typeAbrv }}">{{ type }}</option>
             {% endfor %}
