@@ -1,6 +1,9 @@
 services:
-    app.treatment_center:
-        class: AppBundle\Services\TreatmentCenter
-        arguments: ['%treatment_center_api_url%', '%treatment_center_user_name%', '%treatment_center_user_password%']
+    fguillot.client:
+        class: JsonRPC\Client
+        arguments: ['%treatment_center_api_url%']
+    app.treatment_center_service:
+        class: AppBundle\Services\TreatmentCenterService
+        arguments: ['@fguillot.client', '%treatment_center_user_name%', '%treatment_center_user_password%']
 
 

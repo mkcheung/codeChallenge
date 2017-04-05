@@ -5,9 +5,14 @@ namespace AppBundle\Services;
 use JsonRPC\Client;
 use JsonRPC\MiddlewareInterface;
 use JsonRPC\Exception\AuthenticationFailureException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Client as GuzzleClient;
 
-class TreatmentCenter
+class TreatmentCenterService
 {
+
+	const NAUTICAL_MILES_PER_LAT = 60;
+	const MILES_PER_NAUT_MILE = 1.1515;
 
 	private $jsonRpcClient;
 
@@ -29,16 +34,17 @@ class TreatmentCenter
     	'zip_code' => '92101'
     ];
 
-    public function __construct($treatmentCenterUrl, $userId, $userPassword)
-    {
-
-    	$this->jsonRpcClient = new Client($treatmentCenterUrl);
+    public function __construct(
+    	$jsonRpcClient,
+    	$userId,
+    	$userPassword
+    ) {
+    	$this->jsonRpcClient = $jsonRpcClient;
         $this->jsonRpcClient->authentication($userId, $userPassword);
     }
 
 	public function getTreatmentCenters()
 	{
-
         $meetingsWithRegion = $this->jsonRpcClient->execute('byLocals', $this->epicenterParams);
         $meetingsDesired = $this->extractDesiredMeetings($meetingsWithRegion);
 		$originCoordinates = $this->getOriginLatitudeLongitude();
@@ -50,11 +56,11 @@ class TreatmentCenter
 
 	private function extractDesiredMeetings($meetingsWithRegion)
 	{
-
 		$meetingsOnDesiredDay = [];
 
 		foreach($meetingsWithRegion as $meeting){
-			if(($meeting['time']['day'] = $this->desiredMeetingDay) && in_array($meeting['meeting_type'], $this->desiredMeetingTypes)){
+
+			if (($meeting['time']['day'] = $this->desiredMeetingDay) && in_array($meeting['meeting_type'], $this->desiredMeetingTypes)){
 				$meetingsOnDesiredDay[] = $meeting;
 			}
 		}
@@ -67,20 +73,20 @@ class TreatmentCenter
 
 		$googleGeolocationUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($this->originAddress['street_address']).','.urlencode($this->originAddress['city']).','.urlencode($this->originAddress['state']);
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $googleGeolocationUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$client = new GuzzleClient();
+		$res = $client->request('GET', $googleGeolocationUrl);
+		$jsonResponse = $res->getBody();
 
-        $jsonResponse = curl_exec($ch);
         $geocodeResponse = json_decode($jsonResponse);
         $geoCodeResults = array_shift($geocodeResponse->results);
         $originCoordinates = $geoCodeResults->geometry->location;
         return $originCoordinates;
 	}
 
-    private function calculateMeetingDistanceFromOrigin(&$meetingsDesired, $originCoordinates)
-    {
-
+    private function calculateMeetingDistanceFromOrigin(
+    	&$meetingsDesired,
+    	$originCoordinates
+    ) {
 		$meetingDistancesFromOrigin = [];
 
 		foreach ($meetingsDesired as &$meeting) {
@@ -90,7 +96,7 @@ class TreatmentCenter
         	$distance  = sin(deg2rad($meeting['address']['lat'])) * sin(deg2rad($originCoordinates->lat)) + cos(deg2rad($meeting['address']['lat'])) * cos(deg2rad($originCoordinates->lat)) * cos(deg2rad($delta_lon)) ;
 	        $distance  = acos($distance);
 	        $distance  = rad2deg($distance);
-	        $distance  = $distance * 60 * 1.1515;
+	        $distance  = $distance * static::NAUTICAL_MILES_PER_LAT * static::MILES_PER_NAUT_MILE;
 	        $distance  = round($distance, 6);
 	        $meeting['distanceFromOrigin'] = $distance;
 		}
@@ -106,8 +112,6 @@ class TreatmentCenter
 	}
 
     private function sortMeetingsFromOrigin(&$meetingsDesired) {
-
     	usort($meetingsDesired, [$this,'sortByDistance']);
     }
-
 }
