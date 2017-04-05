@@ -5,7 +5,8 @@ namespace AppBundle\Services;
 use JsonRPC\Client;
 use JsonRPC\MiddlewareInterface;
 use JsonRPC\Exception\AuthenticationFailureException;
-use GuzzleHttp\Psr7\Request;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use GuzzleHttp\Client as GuzzleClient;
 
 class TreatmentCenterService
@@ -43,7 +44,7 @@ class TreatmentCenterService
         $this->jsonRpcClient->authentication($userId, $userPassword);
     }
 
-	public function getTreatmentCenters()
+	public function getTreatmentCenters(Request $request)
 	{
         $meetingsWithRegion = $this->jsonRpcClient->execute('byLocals', $this->epicenterParams);
         $meetingsDesired = $this->extractDesiredMeetings($meetingsWithRegion);

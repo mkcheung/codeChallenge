@@ -9,16 +9,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DefaultController extends Controller
 {
+
+
+
     /**
      * @Route("/", name="homepage")
      */
     public function indexAction(Request $request)
     {
-        $treatmentCenter = $this->get('app.treatment_center_service');
-        $results = $treatmentCenter->getTreatmentCenters();
-        return $this->render('default/index.html.twig', array(
-            'page_title' => 'Monday Treatment Meetings From RB',
-            'results' => $results,
-        ));
+        return $this->render('default/main.html.twig', array());
     }
 }

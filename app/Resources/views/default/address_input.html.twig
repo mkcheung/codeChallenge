@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ page_title }}</title>
+    </head>
+    <body>
+        <h1>{{ page_title }}</h1>
+
+        <form action="/challenge/meetingsFromOrigin" method="POST" >
+            Street Address: <input name="street_address"></input></br>
+            City: <input name="city"></input></br>
+            State: <select name="state">
+            {% for stateAbrv,state in states %}
+                <option value="{{ stateAbrv }}">{{ state }}</option>
+            {% endfor %}
+            </select>
+            Zip Code: <input name="zip_code"></input></br>
+            </br>
+            Meeting Types:</br><select multiple name="meeting_type">
+            {% for typeAbrv,type in meeting_types %}
+                <option value="{{ typeAbrv }}">{{ type }}</option>
+            {% endfor %}
+            </select>
+            </br>
+            </br>
+            Preferred Meeting Day: <select name="day">
+            {% for dayFormatted,day in days %}
+                <option value="{{ dayFormatted }}">{{ day }}</option>
+            {% endfor %}
+            </select>
+            </br>
+            <input type="submit"/>
+        </form>
+
+    </body>
+</html>
