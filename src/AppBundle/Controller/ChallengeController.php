@@ -28,10 +28,13 @@ class ChallengeController extends Controller {
 	public function meetingsFromLocationAction(Request $request)
 	{
 
-        $treatmentCenter = $this->get('app.treatment_center_service');
-        $meetingInformation = $treatmentCenter->getTreatmentCenters($request);
-        return $this->render('default/meeting.html.twig', array(
+        $treatmentCenterService = $this->get('app.treatment_center_service');
+        $meetingInformation = $treatmentCenterService->getTreatmentCenters($request);
+
+     	$response = $this->render('default/meeting.html.twig', array(
             'meetingInformation' => $meetingInformation,
         ));
+        $response->setSharedMaxAge(60);
+        return $response;
 	}
 }
