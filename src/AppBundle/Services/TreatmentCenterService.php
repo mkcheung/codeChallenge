@@ -17,8 +17,6 @@ class TreatmentCenterService
 
 	private $jsonRpcClient;
 
-	private $meetingsWithinRegion;
-
 	private $desiredMeetingDay = 'monday';
 	private $desiredMeetingTypes = ['AA', 'NA'];
 
@@ -47,7 +45,7 @@ class TreatmentCenterService
 		}
 		$this->assembleParameters($inputParameters);
 
-        $this->meetingsWithinRegion = $this->jsonRpcClient->execute('byLocals',
+        $meetingsAssociatedWithRegion = $this->jsonRpcClient->execute('byLocals',
 			[
 				[
 				    [
@@ -58,10 +56,10 @@ class TreatmentCenterService
 			]
         );
 
-        $desiredMeetings = $this->extractDesiredMeetings();
+        $desiredMeetings = $this->extractDesiredMeetings($meetingsAssociatedWithRegion);
 
 		$locationCoordinates         = $this->getLocationLatitudeLongitude();
-		$meetingsDistancesCalculated = $this->calculateMeetingDistanceFromLocation($locationCoordinates);
+		$meetingsDistancesCalculated = $this->calculateMeetingDistanceFromLocation($locationCoordinates, $desiredMeetings);
 		$sortedMeetings              = $this->sortMeetingsFromOrigin($meetingsDistancesCalculated);
 
 		$meetingInformation['meetings']        = $sortedMeetings;
@@ -73,13 +71,12 @@ class TreatmentCenterService
 	}
 
 	public function extractDesiredMeetings(
-		array $setOfMeetings = null,
+		array $meetings,
 		$preferredMeetingDay = null,
 		array $preferredMeetingTypes = null
 	) {
 		$desiredMeetings = [];
 
-		$meetings     = (empty($setOfMeetings)) ? $this->meetingsWithinRegion : $setOfMeetings;
 		$meetingDay   = (empty($preferredMeetingDay)) ? $this->desiredMeetingDay : $preferredMeetingDay;
 		$meetingTypes = (empty($preferredMeetingTypes)) ? $this->desiredMeetingTypes : $preferredMeetingTypes;
 
@@ -114,14 +111,10 @@ class TreatmentCenterService
 
     public function calculateMeetingDistanceFromLocation(
     	array $locationCoordinates,
-    	$meetings = null
+    	$meetings
     ) {
 
-		$utilizedMeetings = (empty($meetings)) ? $this->meetingsWithinRegion : $meetings;
-
-		$meetingDistancesFromOrigin = [];
-
-		foreach ($utilizedMeetings as &$meeting) {
+		foreach ($meetings as &$meeting) {
 
 	        $delta_lat = ($locationCoordinates['lat']) - $meeting['address']['lat'];
 	        $delta_lon = ($locationCoordinates['lng']) - $meeting['address']['lng'];
@@ -132,7 +125,7 @@ class TreatmentCenterService
 	        $distance  = round($distance, 6);
 	        $meeting['distanceFromOrigin'] = $distance;
 		}
-		return $utilizedMeetings;
+		return $meetings;
     }
 
     public function sortMeetingsFromOrigin($meetingsWithDistancesCalculated) {

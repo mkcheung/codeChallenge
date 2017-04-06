@@ -3,6 +3,11 @@
     <head>
         <title>{{ meetingInformation.meetingDay }}</title>
     </head>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
     <body>
         <h1>{{ meetingInformation.meetingDay }} Treatment Center Meetings</h1>
 
@@ -19,11 +24,33 @@
             </h3>
         </div>
 
-        <ul id="navigation">
-                <li><span>ID: </span> <span>Meeting Name</span> <span>Meeting Type</span></li>
-            {% for meeting in meetingInformation.meetings %}
-                <li><span>{{ meeting.id }}</span> <span>{{ meeting.meeting_name }} </span> <span>{{ meeting.meeting_type }} </span> <span>{{ meeting.distanceFromOrigin }}</span></li>
-            {% endfor %}
-        </ul>
+        <div id="navigation">
+
+<table>
+    <tr>
+        <th>
+            ID:
+        </th>
+        <th>
+            Meeting Name:
+        </th>
+        <th>
+            Meeting Type:
+        </th>
+        <th>
+            Distance(in miles)
+        </th>
+        <th>
+            Latitude
+        </th>
+        <th>
+            Longitude
+        </th>
+
+    {% for meeting in meetingInformation.meetings %}
+        <tr><td>{{ meeting.id }}</td> <td>{{ meeting.meeting_name }} </td> <td>{{ meeting.meeting_type }} </td> <td>{{ meeting.distanceFromOrigin }}</td> <td>{{ meeting.address.lat }}</td> <td>{{ meeting.address.lng }}</td></tr>
+    {% endfor %}
+
+        </div>
     </body>
 </html>
