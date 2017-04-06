@@ -28,10 +28,10 @@
 
 <table>
     <tr>
-        <th>ID:</th><th>Meeting Name:</th><th>Meeting Type:</th><th>Distance(in miles)</th><th>Latitude</th><th>Longitude</th>
+        <th>ID:</th><th>Meeting Name:</th><th>Meeting Type:</th><th>Day</th><th>Distance(in miles)</th><th>Address</th><th>Latitude</th><th>Longitude</th>
 
         {% for meeting in meetingInformation.meetings %}
-            <tr><td>{{ meeting.id }}</td> <td>{{ meeting.meeting_name }} </td> <td>{{ meeting.meeting_type }} </td> <td>{{ meeting.distanceFromOrigin }}</td> <td>{{ meeting.address.lat }}</td> <td>{{ meeting.address.lng }}</td></tr>
+            <tr><td>{{ meeting.id }}</td> <td>{{ meeting.meeting_name }} </td> <td>{{ meeting.meeting_type }} </td> <td>{{ meeting.time.day }} </td> <td>{{ meeting.distanceFromOrigin }}</td> <td>{{ meeting.raw_address }}</td>  <td>{{ meeting.address.lat }}</td> <td>{{ meeting.address.lng }}</td></tr>
         {% endfor %}
 
         </div>

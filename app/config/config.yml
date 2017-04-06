@@ -75,6 +75,7 @@ parameters:
         AE: Armed Forces Middle East
         AP: Armed Forces Pacific
     days:
+        "": ""
         sunday: Sunday
         monday: Monday
         tuesday: Tuesday

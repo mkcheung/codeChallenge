@@ -17,7 +17,6 @@ class TreatmentCenterService
 
 	private $jsonRpcClient;
 
-	private $desiredMeetingDay = 'sunday';
 	private $desiredMeetingTypes = ['AA', 'NA', 'OA', 'MA'];
 
     private $originAddress = [
@@ -65,7 +64,7 @@ class TreatmentCenterService
 		$sortedMeetings              = $this->sortMeetingsFromOrigin($meetingsDistancesCalculated);
 
 		$meetingInformation['meetings']        = $sortedMeetings;
-		$meetingInformation['meetingDay']      = ucfirst((empty($inputParameters['day'])) ? $this->desiredMeetingDay : $inputParameters['day']);
+		$meetingInformation['meetingDay']      = ucfirst((empty($inputParameters['day'])) ? 'All Day' : $inputParameters['day']); //ucfirst((empty($inputParameters['day'])) ? $this->desiredMeetingDay : $inputParameters['day']);
 		$meetingInformation['meetingTypes']    = empty($inputParameters['meeting_type']) ? $this->desiredMeetingTypes : $inputParameters['meeting_type'];
 		$meetingInformation['locationAddress'] = empty($inputParameters['address']) ? $this->originAddress : $inputParameters['address'];
 
@@ -79,14 +78,25 @@ class TreatmentCenterService
 	) {
 		$desiredMeetings = [];
 
-		$meetingDay   = (empty($preferredMeetingDay)) ? $this->desiredMeetingDay : $preferredMeetingDay;
+		$meetingDay   = $preferredMeetingDay;
 		$meetingTypes = (empty($preferredMeetingTypes)) ? $this->desiredMeetingTypes : $preferredMeetingTypes;
 
 		foreach($meetings as $meeting){
 
-			if (($meeting['time']['day'] == $meetingDay) && in_array($meeting['meeting_type'], $meetingTypes)){
-				$desiredMeetings[] = $meeting;
+			if (in_array($meeting['meeting_type'], $meetingTypes)) {
+
+				$meetingToBeScreened = $meeting ;
 			}
+
+			if (!empty($meetingToBeScreened) && !empty($meetingDay) && $meetingDay != $meetingToBeScreened['time']['day']) {
+				continue ;
+			}
+
+			if (!empty($meetingToBeScreened)) {
+				$desiredMeetings[] = $meetingToBeScreened;
+				unset($meetingToBeScreened);
+			}
+
 		}
 
 		return $desiredMeetings;
@@ -127,6 +137,7 @@ class TreatmentCenterService
 	        $distance  = round($distance, 6);
 	        $meeting['distanceFromOrigin'] = $distance;
 		}
+
 		return $meetings;
     }
 
@@ -171,7 +182,7 @@ class TreatmentCenterService
 			}
 		}
 
-		if(!(array_key_exists('meeting_type', $parameters))){
+		if (!(array_key_exists('meeting_type', $parameters))) {
 			$parameters['meeting_type'] = [];
 		}
 
