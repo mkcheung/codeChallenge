@@ -16,9 +16,7 @@ class TreatmentCenterService
 	const MILES_PER_NAUT_MILE = 1.1515;
 
 	private $jsonRpcClient;
-
 	private $desiredMeetingTypes;
-
     private $originAddress;
 
     public function __construct(
@@ -187,7 +185,7 @@ class TreatmentCenterService
 			$parameters['meeting_type'] = [];
 		}
 
-		if(
+		if (
 			empty($parameters['address']['street_address']) ||
 			empty($parameters['address']['city']) ||
 			empty($parameters['address']['state']) ||
