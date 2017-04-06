@@ -88,6 +88,11 @@ parameters:
         MA: Marijuana Anonymous
         OA: Overeaters Anonymous
         NA: Narcotics Anonymous
+    default_origin_address:
+        street_address: 517 4th Ave.
+        city: San Diego
+        state: CA
+        zip_code: 92101
 
 framework:
     #esi:             ~

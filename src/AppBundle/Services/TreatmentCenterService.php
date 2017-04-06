@@ -17,22 +17,21 @@ class TreatmentCenterService
 
 	private $jsonRpcClient;
 
-	private $desiredMeetingTypes = ['AA', 'NA', 'OA', 'MA'];
+	private $desiredMeetingTypes;
 
-    private $originAddress = [
-    	'street_address' => '517 4th Ave.',
-    	'city' => 'San Diego',
-    	'state' => 'CA',
-    	'zip_code' => '92101'
-    ];
+    private $originAddress;
 
     public function __construct(
     	JsonRPCClient $jsonRpcClient,
     	$userId,
-    	$userPassword
+    	$userPassword,
+    	$defaultOriginAddress,
+    	$meetingTypes
     ) {
     	$this->jsonRpcClient = $jsonRpcClient;
         $this->jsonRpcClient->authentication($userId, $userPassword);
+        $this->originAddress = $defaultOriginAddress;
+        $this->desiredMeetingTypes = array_keys($meetingTypes);
     }
 
 	public function getTreatmentCenters(Request $request)
@@ -156,7 +155,9 @@ class TreatmentCenterService
 
 	private function assembleParameters($incomingParameters)
 	{
+
 		$parameters = [];
+
 		foreach ($incomingParameters as $key => $value) {
 			switch($key){
 				case 'street_address':

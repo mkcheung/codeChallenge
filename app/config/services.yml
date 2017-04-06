@@ -4,6 +4,6 @@ services:
         arguments: ['%treatment_center_api_url%']
     app.treatment_center_service:
         class: AppBundle\Services\TreatmentCenterService
-        arguments: ['@fguillot.client', '%treatment_center_user_name%', '%treatment_center_user_password%']
+        arguments: ['@fguillot.client', '%treatment_center_user_name%', '%treatment_center_user_password%', '%default_origin_address%', '%meeting_types%']
 
 
