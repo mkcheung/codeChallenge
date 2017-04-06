@@ -8,6 +8,7 @@ imports:
 parameters:
     locale: en
     states:
+        "": ""
         AL: Alabama
         AK: Alaska
         AZ: Arizona

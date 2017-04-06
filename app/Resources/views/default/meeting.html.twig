@@ -12,7 +12,7 @@
         <h1>{{ meetingInformation.meetingDay }} Treatment Center Meetings</h1>
 
         <div>
-            <h2>Meetings sorted by distance from: </h2>
+            <h2>Meetings sorted by distance (closest to furthest) from: </h2>
             <h3>
                 <span>{{ meetingInformation.locationAddress.street_address }}</span></br>
                 <span>{{ meetingInformation.locationAddress.city }}</span>,
@@ -28,28 +28,11 @@
 
 <table>
     <tr>
-        <th>
-            ID:
-        </th>
-        <th>
-            Meeting Name:
-        </th>
-        <th>
-            Meeting Type:
-        </th>
-        <th>
-            Distance(in miles)
-        </th>
-        <th>
-            Latitude
-        </th>
-        <th>
-            Longitude
-        </th>
+        <th>ID:</th><th>Meeting Name:</th><th>Meeting Type:</th><th>Distance(in miles)</th><th>Latitude</th><th>Longitude</th>
 
-    {% for meeting in meetingInformation.meetings %}
-        <tr><td>{{ meeting.id }}</td> <td>{{ meeting.meeting_name }} </td> <td>{{ meeting.meeting_type }} </td> <td>{{ meeting.distanceFromOrigin }}</td> <td>{{ meeting.address.lat }}</td> <td>{{ meeting.address.lng }}</td></tr>
-    {% endfor %}
+        {% for meeting in meetingInformation.meetings %}
+            <tr><td>{{ meeting.id }}</td> <td>{{ meeting.meeting_name }} </td> <td>{{ meeting.meeting_type }} </td> <td>{{ meeting.distanceFromOrigin }}</td> <td>{{ meeting.address.lat }}</td> <td>{{ meeting.address.lng }}</td></tr>
+        {% endfor %}
 
         </div>
     </body>

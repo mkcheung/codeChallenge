@@ -17,8 +17,8 @@ class TreatmentCenterService
 
 	private $jsonRpcClient;
 
-	private $desiredMeetingDay = 'monday';
-	private $desiredMeetingTypes = ['AA', 'NA'];
+	private $desiredMeetingDay = 'sunday';
+	private $desiredMeetingTypes = ['AA', 'NA', 'OA', 'MA'];
 
     private $originAddress = [
     	'street_address' => '517 4th Ave.',
@@ -40,32 +40,34 @@ class TreatmentCenterService
 	{
 
 		$inputParameters = $request->request->all();
+
 		if(empty($inputParameters)){
 			$inputParameters = $request->query->all();
 		}
-		$this->assembleParameters($inputParameters);
+
+		$inputParameters = $this->assembleParameters($inputParameters);
 
         $meetingsAssociatedWithRegion = $this->jsonRpcClient->execute('byLocals',
 			[
 				[
 				    [
-				        "state_abbr" => $this->originAddress['state'],
-				        "city" => $this->originAddress['city']
+				        "state_abbr" => (empty($inputParameters['address']['state'])) ? $this->originAddress['state'] : $inputParameters['address']['state'],
+				        "city" => (empty($inputParameters['address']['city'])) ? $this->originAddress['city'] : $inputParameters['address']['city']
 				    ]
 				]
 			]
         );
 
-        $desiredMeetings = $this->extractDesiredMeetings($meetingsAssociatedWithRegion);
+        $desiredMeetings = $this->extractDesiredMeetings($meetingsAssociatedWithRegion, $inputParameters['day'], $inputParameters['meeting_type']);
 
-		$locationCoordinates         = $this->getLocationLatitudeLongitude();
+		$locationCoordinates         = $this->getLocationLatitudeLongitude($inputParameters['address']);
 		$meetingsDistancesCalculated = $this->calculateMeetingDistanceFromLocation($locationCoordinates, $desiredMeetings);
 		$sortedMeetings              = $this->sortMeetingsFromOrigin($meetingsDistancesCalculated);
 
 		$meetingInformation['meetings']        = $sortedMeetings;
-		$meetingInformation['meetingDay']      = ucfirst($this->desiredMeetingDay);
-		$meetingInformation['meetingTypes']    = $this->desiredMeetingTypes;
-		$meetingInformation['locationAddress'] = $this->originAddress;
+		$meetingInformation['meetingDay']      = ucfirst((empty($inputParameters['day'])) ? $this->desiredMeetingDay : $inputParameters['day']);
+		$meetingInformation['meetingTypes']    = empty($inputParameters['meeting_type']) ? $this->desiredMeetingTypes : $inputParameters['meeting_type'];
+		$meetingInformation['locationAddress'] = empty($inputParameters['address']) ? $this->originAddress : $inputParameters['address'];
 
 		return $meetingInformation;
 	}
@@ -143,27 +145,45 @@ class TreatmentCenterService
 
 	private function assembleParameters($incomingParameters)
 	{
+		$parameters = [];
 		foreach ($incomingParameters as $key => $value) {
 			switch($key){
 				case 'street_address':
-					$this->originAddress['street_address'] = $value;
+					$parameters['address']['street_address'] = $value;
 					break;
 				case 'city':
-					$this->originAddress['city'] = $value;
+					$parameters['address']['city'] = $value;
 					break;
 				case 'state':
-					$this->originAddress['state'] = $value;
+					$parameters['address']['state'] = $value;
 					break;
 				case 'zip_code':
-					$this->originAddress['zip_code'] = $value;
+					$parameters['address']['zip_code'] = $value;
 					break;
 				case 'meeting_type':
-					$this->desiredMeetingTypes = $value;
+					$parameters['meeting_type'] = $value;
 					break;
 				case 'day':
-					$this->desiredMeetingDay = $value;
+					$parameters['day'] = $value;
+					break;
+				default:
 					break;
 			}
 		}
+
+		if(!(array_key_exists('meeting_type', $parameters))){
+			$parameters['meeting_type'] = [];
+		}
+
+		if(
+			empty($parameters['address']['street_address']) ||
+			empty($parameters['address']['city']) ||
+			empty($parameters['address']['state']) ||
+			empty($parameters['address']['zip_code'])
+		) {
+			$parameters['address'] = null;
+		}
+
+		return $parameters;
 	}
 }
