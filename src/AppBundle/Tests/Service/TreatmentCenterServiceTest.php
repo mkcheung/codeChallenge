@@ -8,6 +8,7 @@ use AppBundle\Service as TreatmentCenterService;
 use JsonRPC\Client as JsonRPCClient;
 use JsonRPC\MiddlewareInterface;
 use JsonRPC\Exception\AuthenticationFailureException;
+use Symfony\Component\HttpFoundation\Request;
 
 class TreatmentCenterServiceTest extends WebTestCase
 {
@@ -316,6 +317,81 @@ class TreatmentCenterServiceTest extends WebTestCase
     	$this->treatmentCenterService = new TreatmentCenterService\TreatmentCenterService($this->JsonRPCClient, 'oXO8YKJUL2X3oqSpFpZ5', 'JaiXo2lZRJVn5P4sw0bt', $this->originAddress, $this->meetingTypes);
     }
 
+    public function testGetTreatmentCentersDefaults()
+    {
+
+    	$sampleRequest = new Request();
+    	$sampleRequest->query->set("street_address", '');
+    	$sampleRequest->query->set("city", '');
+    	$sampleRequest->query->set("state", '');
+    	$sampleRequest->query->set("zip_code", null);
+    	$sampleRequest->query->set("meeting_type", []);
+    	$sampleRequest->query->set("day", '');
+
+    	$treatmentCenterMeetings = $this->treatmentCenterService->getTreatmentCenters($sampleRequest);
+    	$meetings = $treatmentCenterMeetings['meetings'];
+    	$this->assertEquals('All Day', $treatmentCenterMeetings['meetingDay']);
+    	$this->assertEquals(['AA', 'MA', 'OA', 'NA'], $treatmentCenterMeetings['meetingTypes']);
+    	$this->assertEquals("517 4th Ave.", $treatmentCenterMeetings['locationAddress']['street_address']);
+    	$this->assertEquals("San Diego", $treatmentCenterMeetings['locationAddress']['city']);
+    	$this->assertEquals("CA", $treatmentCenterMeetings['locationAddress']['state']);
+    	$this->assertEquals(92101, $treatmentCenterMeetings['locationAddress']['zip_code']);
+    	$this->assertEquals(320, count($meetings));
+    }
+
+    public function testGetTreatmentCentersUsingGet()
+    {
+    	$sampleRequest = new Request();
+    	$sampleRequest->query->set("street_address", "502 South Park Dr.");
+    	$sampleRequest->query->set("city", "San Jose");
+    	$sampleRequest->query->set("state", "CA");
+    	$sampleRequest->query->set("zip_code", 95129);
+    	$sampleRequest->query->set("meeting_type", ['AA']);
+    	$sampleRequest->query->set("day", 'monday');
+
+    	$treatmentCenterMeetings = $this->treatmentCenterService->getTreatmentCenters($sampleRequest);
+    	$meetings = $treatmentCenterMeetings['meetings'];
+    	$this->assertEquals('Monday', $treatmentCenterMeetings['meetingDay']);
+    	$this->assertEquals(['AA'], $treatmentCenterMeetings['meetingTypes']);
+    	$this->assertEquals("502 South Park Dr.", $treatmentCenterMeetings['locationAddress']['street_address']);
+    	$this->assertEquals("San Jose", $treatmentCenterMeetings['locationAddress']['city']);
+    	$this->assertEquals("CA", $treatmentCenterMeetings['locationAddress']['state']);
+    	$this->assertEquals(95129, $treatmentCenterMeetings['locationAddress']['zip_code']);
+    	$this->assertEquals(3, count($meetings));
+
+    	foreach ($meetings as $meeting) {
+    		$this->assertEquals('monday', $meeting['time']['day']);
+    		$this->assertEquals('AA', $meeting['meeting_type']);
+    	}
+
+    }
+
+    public function testGetTreatmentCentersUsingPost()
+    {
+    	$sampleRequest = new Request();
+    	$sampleRequest->request->set("street_address", "502 South Park Dr.");
+    	$sampleRequest->request->set("city", "San Jose");
+    	$sampleRequest->request->set("state", "CA");
+    	$sampleRequest->request->set("zip_code", 95129);
+    	$sampleRequest->request->set("meeting_type", ['AA']);
+    	$sampleRequest->request->set("day", 'monday');
+
+    	$treatmentCenterMeetings = $this->treatmentCenterService->getTreatmentCenters($sampleRequest);
+    	$meetings = $treatmentCenterMeetings['meetings'];
+    	$this->assertEquals('Monday', $treatmentCenterMeetings['meetingDay']);
+    	$this->assertEquals(['AA'], $treatmentCenterMeetings['meetingTypes']);
+    	$this->assertEquals("502 South Park Dr.", $treatmentCenterMeetings['locationAddress']['street_address']);
+    	$this->assertEquals("San Jose", $treatmentCenterMeetings['locationAddress']['city']);
+    	$this->assertEquals("CA", $treatmentCenterMeetings['locationAddress']['state']);
+    	$this->assertEquals(95129, $treatmentCenterMeetings['locationAddress']['zip_code']);
+    	$this->assertEquals(3, count($meetings));
+
+    	foreach ($meetings as $meeting) {
+    		$this->assertEquals('monday', $meeting['time']['day']);
+    		$this->assertEquals('AA', $meeting['meeting_type']);
+    	}
+
+    }
 
     public function testExtractDesiredMeetingsDefault()
     {
