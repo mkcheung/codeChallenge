@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Services;
+namespace AppBundle\Service;
 
 use JsonRPC\Client as JsonRPCClient;
 use JsonRPC\MiddlewareInterface;
