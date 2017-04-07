@@ -3,6 +3,7 @@
 namespace AppBundle\Tests\Service;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use PHPUnit\Framework\TestCase;
 use AppBundle\Service as TreatmentCenterService;
 
 use JsonRPC\Client as JsonRPCClient;
@@ -306,10 +307,8 @@ class TreatmentCenterServiceTest extends WebTestCase
 	   ]
 	];
 
-
 	protected $JsonRPCClient;
 	protected $treatmentCenterService;
-
 
     public function setUp()
     {

@@ -17,3 +17,7 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
+    treatment_center_api_url: http://tools.referralsolutionsgroup.com/meetings-api/v1/
+    treatment_center_user_name: oXO8YKJUL2X3oqSpFpZ5
+    treatment_center_user_password: JaiXo2lZRJVn5P4sw0bt
+
