@@ -34,6 +34,7 @@ class ChallengeController extends Controller {
      	$response = $this->render('default/meeting.html.twig', array(
             'meetingInformation' => $meetingInformation,
         ));
+
         $response->setSharedMaxAge(3600);
 
         return $response;
