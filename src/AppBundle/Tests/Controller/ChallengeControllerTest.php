@@ -16,11 +16,11 @@ class ChallengeControllerTest extends WebTestCase
 {
 
 	protected $challengeController;
-    protected $controllerContainer;
-    protected $mockTreatmentCenterService;
+  protected $controllerContainer;
+  protected $mockTreatmentCenterService;
 	protected $mockRequest;
-    protected $mockResponse;
-    protected $mockTwigEngine;
+  protected $mockResponse;
+  protected $mockTwigEngine;
 
 	protected $requestInput = [
 			'address' => [
