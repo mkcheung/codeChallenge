@@ -151,6 +151,9 @@ class TreatmentCenterService
 		return ($a['distanceFromOrigin'] < $b['distanceFromOrigin']) ? -1 : 1;
 	}
 
+	/**
+	* @codeCoverageIgnore
+	*/
 	private function assembleParameters($incomingParameters)
 	{
 

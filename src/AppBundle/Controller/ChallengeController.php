@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ChallengeController extends Controller {
 
+    const CACHE_EXPIRATION_TIME = 3600;
+
 	/**
 	* @Route("/challenge/")
 	*/
@@ -34,7 +36,8 @@ class ChallengeController extends Controller {
      	$response = $this->render('default/meeting.html.twig', array(
             'meetingInformation' => $meetingInformation,
         ));
-        $response->setSharedMaxAge(3600);
+
+        $response->setSharedMaxAge(static::CACHE_EXPIRATION_TIME);
 
         return $response;
 	}
