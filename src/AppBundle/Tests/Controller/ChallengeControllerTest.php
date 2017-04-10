@@ -80,66 +80,54 @@ class ChallengeControllerTest extends WebTestCase
 
     public function setUp()
     {
-        $this->challengeController = new AppBundleControllers\ChallengeController();
-        $this->controllerContainer = Mockery::mock(Container::class);
-        $this->mockTreatmentCenterService = Mockery::mock(TreatmentCenterService::class);
-    	$this->mockRequest = Mockery::mock(Request::class);
-        $this->mockResponse = Mockery::mock(Response::class);
-    	$this->mockRequest->request = Mockery::mock(ParameterBag::class);
-        $this->mockTwigEngine = Mockery::mock(TwigEngine::class);
+      $this->challengeController = new AppBundleControllers\ChallengeController();
+      $this->controllerContainer = Mockery::mock(Container::class);
+      $this->mockTreatmentCenterService = Mockery::mock(TreatmentCenterService::class);
+      $this->mockRequest = Mockery::mock(Request::class);
+      $this->mockResponse = Mockery::mock(Response::class);
+      $this->mockRequest->request = Mockery::mock(ParameterBag::class);
+      $this->mockTwigEngine = Mockery::mock(TwigEngine::class);
     }
 
     public function testMeetingsFromLocationAction()
     {
 
-        $this->mockRequest
-            ->request
-            ->shouldReceive('all')
-            ->andReturn($this->requestInput);
+      $this->mockRequest
+          ->request
+          ->shouldReceive('all')
+          ->andReturn($this->requestInput);
 
-        $this->mockResponse
-            ->shouldReceive('setSharedMaxAge')
-            ->andReturnSelf();
+      $this->mockResponse
+          ->shouldReceive('setSharedMaxAge')
+          ->andReturnSelf();
 
-        $this->mockTwigEngine
-            ->shouldReceive('renderResponse')
-            ->andReturn($this->mockResponse);
+      $this->mockTwigEngine
+          ->shouldReceive('renderResponse')
+          ->andReturn($this->mockResponse);
 
-        $this->controllerContainer
-            ->shouldReceive('get')
-            ->with('templating')
-            ->andReturn($this->mockTwigEngine);
+      $this->controllerContainer
+          ->shouldReceive('get')
+          ->with('templating')
+          ->andReturn($this->mockTwigEngine);
 
-        $this->controllerContainer
-            ->shouldReceive('get')
-            ->andReturn($this->mockTreatmentCenterService);
+      $this->controllerContainer
+          ->shouldReceive('get')
+          ->andReturn($this->mockTreatmentCenterService);
 
-        $this->controllerContainer
-            ->shouldReceive('has')
-            ->andReturn(true);
+      $this->controllerContainer
+          ->shouldReceive('has')
+          ->andReturn(true);
 
-        $this->mockTreatmentCenterService
-            ->shouldReceive('getTreatmentCenters')
-            ->andReturn($this->treatmentCenterServiceOutput);
+      $this->mockTreatmentCenterService
+          ->shouldReceive('getTreatmentCenters')
+          ->andReturn($this->treatmentCenterServiceOutput);
 
-        $this->challengeController
-            ->setContainer($this->controllerContainer);
-        $results = $this->challengeController
-            ->meetingsFromLocationAction($this->mockRequest);
+      $this->challengeController
+          ->setContainer($this->controllerContainer);
+      $results = $this->challengeController
+          ->meetingsFromLocationAction($this->mockRequest);
+
+      $this->assertInstanceOf(Response::class, $results);
     }
-
-//    public function testSomething()
-//    {
-//
-//        $this->mockTreatmentCenterService
-//            ->shouldReceive('getTreatmentCenters')
-//            ->andReturn($this->treatmentCenterServiceOutput);
-//
-//        $container = new Container();
-//
-//        $this->challengeController
-//            ->setContainer($container);
-//
-//    }
 
 }
