@@ -2,8 +2,12 @@ services:
     fguillot.client:
         class: JsonRPC\Client
         arguments: ['%treatment_center_api_url%']
+    fguillot.client_authenticated:
+        class: JsonRPC\Client
+        factory: ['@fguillot.client', authentication]
+        arguments: ['%treatment_center_user_name%', '%treatment_center_user_password%']
     app.treatment_center_service:
         class: AppBundle\Service\TreatmentCenterService
-        arguments: ['@fguillot.client', '%treatment_center_user_name%', '%treatment_center_user_password%', '%default_origin_address%', '%meeting_types%']
+        arguments: ['@fguillot.client_authenticated', '%default_origin_address%', '%meeting_types%']
 
 

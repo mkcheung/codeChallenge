@@ -47,7 +47,7 @@ class ChallengeController extends Controller {
             'meetingInformation' => $meetingInformation,
         ));
 
-        $response->setSharedMaxAge(static::CACHE_EXPIRATION_TIME);
+//        $response->setSharedMaxAge(static::CACHE_EXPIRATION_TIME);
 
         return $response;
 	}

@@ -10,6 +10,9 @@ use JsonRPC\Client as JsonRPCClient;
 use JsonRPC\MiddlewareInterface;
 use JsonRPC\Exception\AuthenticationFailureException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Mockery;
 
 class TreatmentCenterServiceTest extends WebTestCase
 {
@@ -194,6 +197,86 @@ class TreatmentCenterServiceTest extends WebTestCase
 		]
 	];
 
+	protected $meetingsFromDefault = [
+		[
+		    "id" => 18108,
+		    "time_id" => 15440,
+		    "address_id" => 15796,
+		    "type" => "MeetingItem",
+		    "details" => "Format: Just For Today",
+		    "meeting_type" => "AA",
+		    "meeting_name" => "Noon At The Beach",
+		    "language" => "English",
+			"raw_address" => "Church in alley, 1050 Thomas st., san_diego, , CA",
+			"location" => "Church in alley",
+		    "address" => [
+		      "id" => 15796,
+		      "street" => "",
+		      "zip" => "92103",
+		      "city" => "San Diego",
+		      "state_abbr" => "CA",
+		      "lat" => "32.746085",
+		      "lng" =>  "-117.170517"
+		    ],
+		    "time" => [
+		      "id" => 15419,
+		      "day" => "saturday",
+		      "hour" => 2000
+		    ]
+	   ],
+		[
+		    "id" => 18055,
+		    "time_id" => 15457,
+		    "address_id" => 15796,
+		    "type" => "MeetingItem",
+		    "details" => "Format:",
+		    "meeting_type" => "AA",
+		    "meeting_name" => "Unnamed Meeting",
+		    "language" => ".",
+		    "raw_address" => "San Diego, 90 Day Avenue, san_diego, , CA",
+		    "location" => "San Diego",
+		    "address" => [
+		      "id" => 15796,
+		      "street" => "",
+		      "zip" => "92103",
+		      "city" => "San Diego",
+		      "state_abbr" => "CA",
+		      "lat" => "32.746085",
+		      "lng" =>  "-117.170517"
+		    ],
+		    "time" => [
+		      "id" => 15457,
+		      "day" => "sunday",
+		      "hour" => 1000
+		    ]
+	   ],
+		[
+		    "id" => 18056,
+		    "time_id" => 15492,
+		    "address_id" => 15797,
+		    "type" => "MeetingItem",
+		    "details" => "Format: Closed",
+		    "meeting_type" => "AA",
+		    "meeting_name" => "A Spiritual Way Of Life",
+		    "language" => ".",
+		    "raw_address" => "Allied Gardens, 5107 Orcutt Ave, san diego, , CA",
+		    "location" => "Allied Gardens",
+		    "address" => [
+		      "id" => 15797,
+		      "street" => "5107 Orcutt Ave",
+		      "zip" => "92120",
+		      "city" => "San Diego",
+		      "state_abbr" => "CA",
+		      "lat" => "32.791229875",
+		      "lng" =>  "-117.0836145"
+		    ],
+		    "time" => [
+		      "id" => 15492,
+		      "day" => "thursday",
+		      "hour" => 1730
+		    ]
+	   ]
+	];
 
 	protected $meetingsForDistances = [
 		[
@@ -308,6 +391,7 @@ class TreatmentCenterServiceTest extends WebTestCase
 	];
 
 	protected $JsonRPCClient;
+	protected $mockJsonRPCClient;
 	protected $treatmentCenterService;
 
     public function setUp()
@@ -330,12 +414,73 @@ class TreatmentCenterServiceTest extends WebTestCase
     	$treatmentCenterMeetings = $this->treatmentCenterService->getTreatmentCenters($sampleRequest);
     	$meetings = $treatmentCenterMeetings['meetings'];
     	$this->assertEquals('All Day', $treatmentCenterMeetings['meetingDay']);
-    	$this->assertEquals(['AA', 'MA', 'OA', 'NA'], $treatmentCenterMeetings['meetingTypes']);
+    	$this->assertEquals(array_keys($this->meetingTypes), $treatmentCenterMeetings['meetingTypes']);
     	$this->assertEquals("517 4th Ave.", $treatmentCenterMeetings['locationAddress']['street_address']);
     	$this->assertEquals("San Diego", $treatmentCenterMeetings['locationAddress']['city']);
     	$this->assertEquals("CA", $treatmentCenterMeetings['locationAddress']['state']);
     	$this->assertEquals(92101, $treatmentCenterMeetings['locationAddress']['zip_code']);
     	$this->assertEquals(320, count($meetings));
+
+    	foreach ($meetings as $meeting) {
+    		$this->assertContains($meeting['meeting_type'], array_keys($this->meetingTypes));
+	    	$this->assertEquals("San Diego", $meeting['address']['city']);
+	    	$this->assertEquals("CA", $meeting['address']['state_abbr']);
+    	}
+
+    }
+
+    public function testGetTreatmentCentersDefaultsUseMockery()
+    {
+
+    	$mockRequest = Mockery::mock(Request::class);
+    	$mockRequest->request = Mockery::mock(ParameterBag::class);
+    	$mockRequest->query = Mockery::mock(ParameterBag::class);
+
+		$mockRequest
+			->request
+    		->shouldReceive('all')
+			->andReturnNull();
+
+		$mockRequest
+			->query
+    		->shouldReceive('all')
+			->andReturn([
+					'address' => [
+						"street_address" => '',
+						"city" => '',
+						"state" => '',
+						"zip_code" => ''
+						],
+					'day' => '',
+					'meeting_type' => []
+				]);
+
+		// NOTE: Use fully qualified namespace to circumvent issues with type-hinted method parameters
+    	$mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
+    	$mockJsonRPCClient
+    		->shouldReceive('authentication')
+    		->andReturnSelf();
+    	$mockJsonRPCClient
+    		->shouldReceive('execute')
+    		->andReturn($this->meetingsFromDefault);
+
+		$treatmentCenterServiceUsingMockery = new TreatmentCenterService\TreatmentCenterService($mockJsonRPCClient, 'oXO8YKJUL2X3oqSpFpZ5', 'JaiXo2lZRJVn5P4sw0bt', $this->originAddress, $this->meetingTypes);
+
+    	$treatmentCenterMeetings = $treatmentCenterServiceUsingMockery->getTreatmentCenters($mockRequest);
+    	$meetings = $treatmentCenterMeetings['meetings'];
+    	$this->assertEquals('All Day', $treatmentCenterMeetings['meetingDay']);
+    	$this->assertEquals(['AA', 'MA', 'OA', 'NA'], $treatmentCenterMeetings['meetingTypes']);
+    	$this->assertEquals("517 4th Ave.", $treatmentCenterMeetings['locationAddress']['street_address']);
+    	$this->assertEquals("San Diego", $treatmentCenterMeetings['locationAddress']['city']);
+    	$this->assertEquals("CA", $treatmentCenterMeetings['locationAddress']['state']);
+    	$this->assertEquals(92101, $treatmentCenterMeetings['locationAddress']['zip_code']);
+    	$this->assertEquals(3, count($meetings));
+
+    	foreach ($meetings as $meeting) {
+    		$this->assertContains($meeting['meeting_type'], array_keys($this->meetingTypes));
+	    	$this->assertEquals("San Diego", $meeting['address']['city']);
+	    	$this->assertEquals("CA", $meeting['address']['state_abbr']);
+    	}
     }
 
     public function testGetTreatmentCentersUsingGet()

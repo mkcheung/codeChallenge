@@ -21,13 +21,10 @@ class TreatmentCenterService
 
     public function __construct(
     	JsonRPCClient $jsonRpcClient,
-    	$userId,
-    	$userPassword,
     	$defaultOriginAddress,
     	$meetingTypes
     ) {
     	$this->jsonRpcClient = $jsonRpcClient;
-        $this->jsonRpcClient->authentication($userId, $userPassword);
         $this->originAddress = $defaultOriginAddress;
         $this->desiredMeetingTypes = array_keys($meetingTypes);
     }
@@ -99,7 +96,7 @@ class TreatmentCenterService
 		return $desiredMeetings;
 	}
 
-	public function getLocationLatitudeLongitude(array $address = [])
+	public function getLocationLatitudeLongitude(array $address = null)
 	{
 
 		$streetAddress = (empty($address['street_address'])) ? $this->originAddress['street_address'] : $address['street_address'];
