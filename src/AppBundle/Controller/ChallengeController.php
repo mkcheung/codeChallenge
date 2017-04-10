@@ -13,6 +13,7 @@ class ChallengeController extends Controller {
 
 	/**
 	* @Route("/challenge/")
+    * @codeCoverageIgnore
 	*/
 	public function indexAction()
 	{
@@ -24,6 +25,7 @@ class ChallengeController extends Controller {
             'meeting_types' => $this->container->getParameter('meeting_types')
         ));
 	}
+
 	/**
 	* @Route("/challenge/meetingsFromLocation")
 	*/
