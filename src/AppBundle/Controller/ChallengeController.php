@@ -21,6 +21,14 @@ class ChallengeController extends Controller {
         return $this->render('default/address_input.html.twig', array(
             'page_title' => 'Request Meeting Times, Types and Locations',
             'states' => $this->container->getParameter('states'),
+
+
+
+
+
+
+
+
             'days' => $this->container->getParameter('days'),
             'meeting_types' => $this->container->getParameter('meeting_types')
         ));

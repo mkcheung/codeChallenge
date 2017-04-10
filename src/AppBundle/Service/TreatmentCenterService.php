@@ -71,7 +71,7 @@ class TreatmentCenterService
 	public function extractDesiredMeetings(
 		array $meetings,
 		$preferredMeetingDay = null,
-		array $preferredMeetingTypes = null
+		array $preferredMeetingTypes = []
 	) {
 		$desiredMeetings = [];
 
@@ -99,7 +99,7 @@ class TreatmentCenterService
 		return $desiredMeetings;
 	}
 
-	public function getLocationLatitudeLongitude(array $address = null)
+	public function getLocationLatitudeLongitude(array $address = [])
 	{
 
 		$streetAddress = (empty($address['street_address'])) ? $this->originAddress['street_address'] : $address['street_address'];
@@ -143,6 +143,9 @@ class TreatmentCenterService
     	return $meetingsWithDistancesCalculated;
     }
 
+	/**
+	* @codeCoverageIgnore
+	*/
 	private static function sortByDistance($a, $b)
 	{
 		if ($a['distanceFromOrigin'] == $b['distanceFromOrigin']) {
