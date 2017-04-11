@@ -1,4 +1,9 @@
 services:
+    repository.meeting_type:
+        class: Doctrine\Orm\EntityRepository
+        factory: ['@doctrine.orm.default_entity_manager', getRepository]
+        arguments:
+            - AppBundle\Entity\MeetingType
     fguillot.client:
         class: JsonRPC\Client
         arguments: ['%treatment_center_api_url%']
@@ -8,6 +13,6 @@ services:
         arguments: ['%treatment_center_user_name%', '%treatment_center_user_password%']
     app.treatment_center_service:
         class: AppBundle\Service\TreatmentCenterService
-        arguments: ['@fguillot.client_authenticated', '%default_origin_address%', '%meeting_types%']
+        arguments: ['@fguillot.client_authenticated', '@repository.meeting_type', '%default_street_address%', '%default_city%', '%default_state%', '%default_zip_code%']
 
 

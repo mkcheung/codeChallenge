@@ -7,11 +7,10 @@ imports:
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
-    default_origin_address:
-        street_address: 517 4th Ave.
-        city: San Diego
-        state: CA
-        zip_code: 92101
+    default_street_address: 517 4th Ave.
+    default_city: San Diego
+    default_state: CA
+    default_zip_code: 92101
 
 framework:
     #esi:             ~
