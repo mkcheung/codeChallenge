@@ -26,7 +26,8 @@
         "guzzle/guzzle": "dev-master",
         "guzzlehttp/guzzle": "~6.0",
         "fguillot/json-rpc": "@stable",
-        "doctrine/doctrine-migrations-bundle": "^1.0"
+        "doctrine/doctrine-migrations-bundle": "^1.0",
+        "leaseweb/memcache-bundle": "*"
     },
     "require-dev": {
         "sensio/generator-bundle": "~3.0",
