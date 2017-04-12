@@ -18,6 +18,7 @@ class ChallengeControllerTest extends WebTestCase
     protected $challengeController;
     protected $controllerContainer;
     protected $mockTreatmentCenterService;
+    protected $mockMemcacheService;
     protected $mockRequest;
     protected $mockResponse;
     protected $mockTwigEngine;
@@ -87,6 +88,8 @@ class ChallengeControllerTest extends WebTestCase
         $this->mockResponse               = Mockery::mock(Response::class);
         $this->mockRequest->request       = Mockery::mock(ParameterBag::class);
         $this->mockTwigEngine             = Mockery::mock(TwigEngine::class);
+
+        $this->mockMemcacheService = Mockery::mock(\Memcache::class);
     }
 
     public function testMeetingsFromLocationAction()
@@ -112,11 +115,29 @@ class ChallengeControllerTest extends WebTestCase
 
         $this->controllerContainer
             ->shouldReceive('get')
+            ->with('app.treatment_center_service')
             ->andReturn($this->mockTreatmentCenterService);
+
+        $this->controllerContainer
+            ->shouldReceive('get')
+            ->with('memcache.default')
+            ->andReturn($this->mockMemcacheService);
+
+        $this->mockMemcacheService
+            ->shouldReceive('get')
+            ->andReturnNull();
+
+        $this->mockMemcacheService
+            ->shouldReceive('set')
+            ->andReturnSelf();
 
         $this->controllerContainer
             ->shouldReceive('has')
             ->andReturn(true);
+
+        $this->mockTreatmentCenterService
+            ->shouldReceive('assembleCacheKey')
+            ->andReturn('517 4th Ave.San DiegoCA92101mondayAA');
 
         $this->mockTreatmentCenterService
             ->shouldReceive('getTreatmentCenters')
