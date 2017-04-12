@@ -20,12 +20,12 @@ class TreatmentCenterService
 
     private $meetingTypeRepository;
 
-    private $streetAddress;
-    private $city;
-    private $state;
-    private $zipCode;
-    private $dayOfMeetingRequested;
-    private $meetingTypesRequested = [];
+    protected $streetAddress;
+    protected $city;
+    protected $state;
+    protected $zipCode;
+    protected $dayOfMeetingRequested;
+    protected $meetingTypesRequested = [];
 
     public function __construct(
         JsonRPCClient $jsonRpcClient,
@@ -228,5 +228,65 @@ class TreatmentCenterService
         }
 
         return $cacheKey;
+    }
+
+    public function setStreetAddress($streetAddress){
+
+        $this->streetAddress = $streetAddress;
+    }
+
+    public function getStreetAddress(){
+
+        return $this->streetAddress;
+    }
+
+    public function setCity($city){
+
+        $this->city = $city;
+    }
+
+    public function getCity(){
+
+        return $this->city;
+    }
+
+    public function setZipCode($zipCode){
+
+        $this->zipCode = $zipCode;
+    }
+
+    public function getZipCode(){
+
+        return $this->zipCode;
+    }
+
+    public function setState($state){
+
+        $this->state = $state;
+    }
+
+    public function getState(){
+
+        return $this->state;
+    }
+
+    public function setDayOfMeeting($dayOfMeetingRequested){
+
+        $this->dayOfMeetingRequested = $dayOfMeetingRequested;
+    }
+
+    public function getDayOfMeeting(){
+
+        return $this->dayOfMeetingRequested;
+    }
+
+    public function setMeetingTypes(array $meetingTypes = []){
+
+        $this->meetingTypesRequested = $meetingTypes;
+    }
+
+    public function getMeetingTypes(){
+
+        return $this->meetingTypesRequested;
     }
 }
