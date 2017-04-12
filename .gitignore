@@ -10,7 +10,16 @@
 /vendor/
 /bin/
 /AppBundle/Tests/*.html
+/AppBundle/Tests/css/
+/AppBundle/Tests/fonts/
+/AppBundle/Tests/js/
+/AppBundle/Tests/Controller/*.*.html
 /AppBundle/Tests/Controller/*.html
+/AppBundle/Tests/Entity/*.*.html
+/AppBundle/Tests/Entity/*.html
+/AppBundle/Tests/Service/Entity/
+/AppBundle/Tests/Service/Form/
+/AppBundle/Tests/Service/*.*.html
 /AppBundle/Tests/Service/*.html
 /composer.phar
 /.idea/workspace.xml
