@@ -21,19 +21,19 @@ class ChallengeController extends Controller
     {
 
         $meetingTypeRepo = $this->getDoctrine()->getRepository(MeetingType::class);
-        $regionRepo = $this->getDoctrine()->getRepository(Region::class);
+        $regionRepo      = $this->getDoctrine()->getRepository(Region::class);
 
         $allMeetingTypes = $meetingTypeRepo->findAll();
-        $allRegions = $regionRepo->findAll();
+        $allRegions      = $regionRepo->findAll();
 
-        $form = $this->createForm(MeetingFilterType::class, [$allMeetingTypes, $allRegions], array(
+        $form = $this->createForm(MeetingFilterType::class, [$allMeetingTypes, $allRegions], [
             'action' => $this->generateUrl('/challenge/meetingsFromLocation'),
-            'method' => 'POST'
-        ))->createView();
+            'method' => 'POST',
+        ])->createView();
 
         return $this->render('default/address_input.html.twig', [
-            'page_title'    => 'Request Meeting Times, Types and Locations',
-            'form'          => $form
+            'page_title' => 'Request Meeting Times, Types and Locations',
+            'form'       => $form,
         ]);
     }
 
@@ -42,15 +42,15 @@ class ChallengeController extends Controller
      */
     public function meetingsFromLocationAction(Request $request)
     {
-        $memcache = $this->get('memcache.default');
-        $cacheKey = $this->assembleCacheKey($request);
+        $treatmentCenterService = $this->get('app.treatment_center_service');
+        $memcache               = $this->get('memcache.default');
+        $cacheKey               = $treatmentCenterService->assembleCacheKey($request);
 
         $meetingInformation = $memcache->get($cacheKey);
-        
+
         if (empty($meetingInformation)) {
 
-            $treatmentCenterService = $this->get('app.treatment_center_service');
-            $meetingInformation     = $treatmentCenterService->getTreatmentCenters($request);
+            $meetingInformation = $treatmentCenterService->getTreatmentCenters($request);
             $memcache->set($cacheKey, $meetingInformation, 0, 3600);
         }
 
@@ -59,34 +59,5 @@ class ChallengeController extends Controller
         ]);
 
         return $response;
-    }
-
-    private function assembleCacheKey(Request $request){
-
-        $inputParameters = $request->request->all();
-
-        if (empty($inputParameters)) {
-            $inputParameters = $request->query->all();
-        }
-        $cacheKey = '';
-
-        $cacheKey .= $inputParameters['street_address'];
-        $cacheKey .= $inputParameters['city'];
-        $cacheKey .= $inputParameters['state'];
-        $cacheKey .= $inputParameters['zip_code'];
-        $cacheKey .= $inputParameters['day'];
-
-        if (!empty($inputParameters['meeting_type'])) {
-            $meetingTypes = $inputParameters['meeting_type'];
-            foreach ($meetingTypes as $meetingType) {
-                $cacheKey .= $meetingType;
-            }
-        }
-
-        if(empty($cacheKey)){
-            return 'default';
-        }
-
-        return $cacheKey;
     }
 }
