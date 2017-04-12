@@ -52,12 +52,12 @@ class MeetingType {
 
 
     public function __construct(
-        $region,
+        $meetingType,
         $meetingTypeInitials
     ) {
 
         $date = new \DateTime();
-        $this->region = $region;
+        $this->meetingType = $meetingType;
         $this->meetingTypeInitials = $meetingTypeInitials;
         $this->createdAt = $date;
         $this->modifiedAt = $date;
@@ -89,7 +89,7 @@ class MeetingType {
     }
 
     /**
-     *
+     * @codeCoverageIgnore
      * @return int
      */
     public function getId() {

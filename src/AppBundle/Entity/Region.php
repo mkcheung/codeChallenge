@@ -93,7 +93,7 @@ class Region {
     }
 
     /**
-     *
+     * @codeCoverageIgnore
      * @return int
      */
     public function getId() {
@@ -104,7 +104,7 @@ class Region {
      * Set createdAt
      *
      * @param \DateTime $createdAt
-     * @return MessageUser
+     * @return Region
      */
     public function setCreatedAt($createdAt)
     {
@@ -127,7 +127,7 @@ class Region {
      * Set modifiedAt
      *
      * @param \DateTime $modifiedAt
-     * @return MessageUser
+     * @return Region
      */
     public function setModifiedAt($modifiedAt)
     {
