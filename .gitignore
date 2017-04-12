@@ -13,3 +13,4 @@
 /AppBundle/Tests/Controller/*.html
 /AppBundle/Tests/Service/*.html
 /composer.phar
+/.idea/workspace.xml
