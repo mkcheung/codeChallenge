@@ -44,7 +44,7 @@ class TreatmentCenterService
         $this->zipCode               = $defaultZipCode;
 
         $defaultMeetingTypes = $this->meetingTypeRepository->findAll();
-        foreach ($defaultMeetingTypes as $defaultMeetingType){
+        foreach ($defaultMeetingTypes as $defaultMeetingType) {
             $this->meetingTypesRequested[] = $defaultMeetingType->getMeetingTypeInitials();
         }
     }
@@ -199,5 +199,34 @@ class TreatmentCenterService
         $this->zipCode       = $incomingParameters['zip_code'];
 
         return;
+    }
+
+    public function assembleCacheKey(Request $request){
+
+        $inputParameters = $request->request->all();
+
+        if (empty($inputParameters)) {
+            $inputParameters = $request->query->all();
+        }
+        $cacheKey = '';
+
+        $cacheKey .= $inputParameters['street_address'];
+        $cacheKey .= $inputParameters['city'];
+        $cacheKey .= $inputParameters['state'];
+        $cacheKey .= $inputParameters['zip_code'];
+        $cacheKey .= $inputParameters['day'];
+
+        if (!empty($inputParameters['meeting_type'])) {
+            $meetingTypes = $inputParameters['meeting_type'];
+            foreach ($meetingTypes as $meetingType) {
+                $cacheKey .= $meetingType;
+            }
+        }
+
+        if(empty($cacheKey)){
+            return 'default';
+        }
+
+        return $cacheKey;
     }
 }
