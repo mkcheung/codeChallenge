@@ -9,4 +9,7 @@
 /build/
 /vendor/
 /bin/
+/AppBundle/Tests/*.html
+/AppBundle/Tests/Controller/*.html
+/AppBundle/Tests/Service/*.html
 /composer.phar

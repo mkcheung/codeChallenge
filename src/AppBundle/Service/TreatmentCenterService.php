@@ -2,6 +2,7 @@
 
 namespace AppBundle\Service;
 
+use Doctrine\ORM\EntityRepository;
 use JsonRPC\Client as JsonRPCClient;
 use JsonRPC\MiddlewareInterface;
 use JsonRPC\Exception\AuthenticationFailureException;
@@ -12,191 +13,191 @@ use GuzzleHttp\Client as GuzzleClient;
 class TreatmentCenterService
 {
 
-	const NAUTICAL_MILES_PER_LAT = 60;
-	const MILES_PER_NAUT_MILE = 1.1515;
+    const NAUTICAL_MILES_PER_LAT = 60;
+    const MILES_PER_NAUT_MILE    = 1.1515;
 
-	private $jsonRpcClient;
-	private $desiredMeetingTypes;
-    private $originAddress;
+    private $jsonRpcClient;
+
+    private $meetingTypeRepository;
+
+    private $streetAddress;
+    private $city;
+    private $state;
+    private $zipCode;
+    private $dayOfMeetingRequested;
+    private $meetingTypesRequested = [];
 
     public function __construct(
-    	JsonRPCClient $jsonRpcClient,
-    	$userId,
-    	$userPassword,
-    	$defaultOriginAddress,
-    	$meetingTypes
+        JsonRPCClient $jsonRpcClient,
+        EntityRepository $meetingTypeRepository,
+        $defaultStreetAddress,
+        $defaultCity,
+        $defaultState,
+        $defaultZipCode
     ) {
-    	$this->jsonRpcClient = $jsonRpcClient;
-        $this->jsonRpcClient->authentication($userId, $userPassword);
-        $this->originAddress = $defaultOriginAddress;
-        $this->desiredMeetingTypes = array_keys($meetingTypes);
+
+        $this->jsonRpcClient         = $jsonRpcClient;
+        $this->meetingTypeRepository = $meetingTypeRepository;
+        $this->streetAddress         = $defaultStreetAddress;
+        $this->city                  = $defaultCity;
+        $this->state                 = $defaultState;
+        $this->zipCode               = $defaultZipCode;
+
+        $defaultMeetingTypes = $this->meetingTypeRepository->findAll();
+        foreach ($defaultMeetingTypes as $defaultMeetingType){
+            $this->meetingTypesRequested[] = $defaultMeetingType->getMeetingTypeInitials();
+        }
     }
 
-	public function getTreatmentCenters(Request $request)
-	{
+    public function getTreatmentCenters(Request $request)
+    {
 
-		$inputParameters = $request->request->all();
+        $inputParameters = $request->request->all();
 
-		if(empty($inputParameters)){
-			$inputParameters = $request->query->all();
-		}
+        if (empty($inputParameters)) {
+            $inputParameters = $request->query->all();
+        }
 
-		$inputParameters = $this->assembleParameters($inputParameters);
+        $this->assembleParameters($inputParameters);
 
         $meetingsAssociatedWithRegion = $this->jsonRpcClient->execute('byLocals',
-			[
-				[
-				    [
-				        "state_abbr" => (empty($inputParameters['address']['state'])) ? $this->originAddress['state'] : $inputParameters['address']['state'],
-				        "city" => (empty($inputParameters['address']['city'])) ? $this->originAddress['city'] : $inputParameters['address']['city']
-				    ]
-				]
-			]
+            [
+                [
+                    [
+                        "state_abbr" => $this->state,
+                        "city"       => $this->city,
+                    ],
+                ],
+            ]
         );
 
-        $desiredMeetings = $this->extractDesiredMeetings($meetingsAssociatedWithRegion, $inputParameters['day'], $inputParameters['meeting_type']);
+        $desiredMeetings = $this->extractDesiredMeetings($meetingsAssociatedWithRegion);
 
-		$locationCoordinates         = $this->getLocationLatitudeLongitude($inputParameters['address']);
-		$meetingsDistancesCalculated = $this->calculateMeetingDistanceFromLocation($locationCoordinates, $desiredMeetings);
-		$sortedMeetings              = $this->sortMeetingsFromOrigin($meetingsDistancesCalculated);
+        $locationCoordinates         = $this->getLocationLatitudeLongitude();
+        $meetingsDistancesCalculated = $this->calculateMeetingDistanceFromLocation($locationCoordinates,
+            $desiredMeetings);
+        $sortedMeetings              = $this->sortMeetingsFromOrigin($meetingsDistancesCalculated);
 
-		$meetingInformation['meetings']        = $sortedMeetings;
-		$meetingInformation['meetingDay']      = ucfirst((empty($inputParameters['day'])) ? 'All Day' : $inputParameters['day']); //ucfirst((empty($inputParameters['day'])) ? $this->desiredMeetingDay : $inputParameters['day']);
-		$meetingInformation['meetingTypes']    = empty($inputParameters['meeting_type']) ? $this->desiredMeetingTypes : $inputParameters['meeting_type'];
-		$meetingInformation['locationAddress'] = empty($inputParameters['address']) ? $this->originAddress : $inputParameters['address'];
+        $meetingInformation['meetings']        = $sortedMeetings;
+        $meetingInformation['meetingDay']      = ucfirst((empty($this->dayOfMeetingRequested)) ? 'All Day' : $this->dayOfMeetingRequested);
+        $meetingInformation['meetingTypes']    = $this->meetingTypesRequested;
+        $meetingInformation['locationAddress'] = [
+            'street_address' => $this->streetAddress,
+            'city'           => $this->city,
+            'state'          => $this->state,
+            'zip_code'       => $this->zipCode,
+        ];
 
-		return $meetingInformation;
-	}
+        return $meetingInformation;
+    }
 
-	public function extractDesiredMeetings(
-		array $meetings,
-		$preferredMeetingDay = null,
-		array $preferredMeetingTypes = null
-	) {
-		$desiredMeetings = [];
+    public function extractDesiredMeetings(array $meetings)
+    {
+        $desiredMeetings = [];
 
-		$meetingDay   = $preferredMeetingDay;
-		$meetingTypes = (empty($preferredMeetingTypes)) ? $this->desiredMeetingTypes : $preferredMeetingTypes;
+        foreach ($meetings as $meeting) {
 
-		foreach($meetings as $meeting){
+            if (in_array($meeting['meeting_type'], $this->meetingTypesRequested)) {
 
-			if (in_array($meeting['meeting_type'], $meetingTypes)) {
+                $meetingToBeScreened = $meeting;
+            }
 
-				$meetingToBeScreened = $meeting ;
-			}
+            if ( !empty($meetingToBeScreened) && !empty($this->dayOfMeetingRequested) && $this->dayOfMeetingRequested != $meetingToBeScreened['time']['day']) {
+                continue;
+            }
 
-			if (!empty($meetingToBeScreened) && !empty($meetingDay) && $meetingDay != $meetingToBeScreened['time']['day']) {
-				continue ;
-			}
+            if ( !empty($meetingToBeScreened)) {
+                $desiredMeetings[] = $meetingToBeScreened;
+                unset($meetingToBeScreened);
+            }
 
-			if (!empty($meetingToBeScreened)) {
-				$desiredMeetings[] = $meetingToBeScreened;
-				unset($meetingToBeScreened);
-			}
+        }
 
-		}
+        return $desiredMeetings;
+    }
 
-		return $desiredMeetings;
-	}
+    public function getLocationLatitudeLongitude()
+    {
 
-	public function getLocationLatitudeLongitude(array $address = null)
-	{
+        $googleGeolocationUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($this->streetAddress) . ',' . urlencode($this->city) . ',' . urlencode($this->state);
 
-		$streetAddress = (empty($address['street_address'])) ? $this->originAddress['street_address'] : $address['street_address'];
-		$city = (empty($address['city'])) ? $this->originAddress['city'] : $address['city'];
-		$state = (empty($address['state'])) ? $this->originAddress['state'] : $address['state'];
+        $client       = new GuzzleClient();
+        $res          = $client->request('GET', $googleGeolocationUrl);
+        $jsonResponse = $res->getBody();
 
-		$googleGeolocationUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($streetAddress).','.urlencode($city).','.urlencode($state);
-
-		$client = new GuzzleClient();
-		$res = $client->request('GET', $googleGeolocationUrl);
-		$jsonResponse = $res->getBody();
-
-        $geocodeResponse = json_decode($jsonResponse);
-        $geoCodeResults = array_shift($geocodeResponse->results);
+        $geocodeResponse    = json_decode($jsonResponse);
+        $geoCodeResults     = array_shift($geocodeResponse->results);
         $addressCoordinates = $geoCodeResults->geometry->location;
-        return (array) $addressCoordinates;
-	}
+
+        return (array)$addressCoordinates;
+    }
 
     public function calculateMeetingDistanceFromLocation(
-    	array $locationCoordinates,
-    	$meetings
+        array $locationCoordinates,
+        $meetings
     ) {
 
-		foreach ($meetings as &$meeting) {
+        foreach ($meetings as &$meeting) {
 
-	        $delta_lat = ($locationCoordinates['lat']) - $meeting['address']['lat'];
-	        $delta_lon = ($locationCoordinates['lng']) - $meeting['address']['lng'];
-        	$distance  = sin(deg2rad($meeting['address']['lat'])) * sin(deg2rad($locationCoordinates['lat'])) + cos(deg2rad($meeting['address']['lat'])) * cos(deg2rad($locationCoordinates['lat'])) * cos(deg2rad($delta_lon)) ;
-	        $distance  = acos($distance);
-	        $distance  = rad2deg($distance);
-	        $distance  = $distance * static::NAUTICAL_MILES_PER_LAT * static::MILES_PER_NAUT_MILE;
-	        $distance  = round($distance, 6);
-	        $meeting['distanceFromOrigin'] = $distance;
-		}
+            $delta_lat                     = ($locationCoordinates['lat']) - $meeting['address']['lat'];
+            $delta_lon                     = ($locationCoordinates['lng']) - $meeting['address']['lng'];
+            $distance                      = sin(deg2rad($meeting['address']['lat'])) * sin(deg2rad($locationCoordinates['lat'])) + cos(deg2rad($meeting['address']['lat'])) * cos(deg2rad($locationCoordinates['lat'])) * cos(deg2rad($delta_lon));
+            $distance                      = acos($distance);
+            $distance                      = rad2deg($distance);
+            $distance                      = $distance * static::NAUTICAL_MILES_PER_LAT * static::MILES_PER_NAUT_MILE;
+            $distance                      = round($distance, 6);
+            $meeting['distanceFromOrigin'] = $distance;
+        }
 
-		return $meetings;
+        return $meetings;
     }
 
-    public function sortMeetingsFromOrigin($meetingsWithDistancesCalculated) {
-    	usort($meetingsWithDistancesCalculated, [$this,'sortByDistance']);
-    	return $meetingsWithDistancesCalculated;
+    public function sortMeetingsFromOrigin($meetingsWithDistancesCalculated)
+    {
+        usort($meetingsWithDistancesCalculated, [$this, 'sortByDistance']);
+
+        return $meetingsWithDistancesCalculated;
     }
 
-	private static function sortByDistance($a, $b)
-	{
-		if ($a['distanceFromOrigin'] == $b['distanceFromOrigin']) {
-			return 0;
-		}
-		return ($a['distanceFromOrigin'] < $b['distanceFromOrigin']) ? -1 : 1;
-	}
+    /**
+     * @codeCoverageIgnore
+     */
+    private static function sortByDistance($a, $b)
+    {
+        if ($a['distanceFromOrigin'] == $b['distanceFromOrigin']) {
+            return 0;
+        }
 
-	/**
-	* @codeCoverageIgnore
-	*/
-	private function assembleParameters($incomingParameters)
-	{
+        return ($a['distanceFromOrigin'] < $b['distanceFromOrigin']) ? -1 : 1;
+    }
 
-		$parameters = [];
+    /**
+     * @codeCoverageIgnore
+     */
+    private function assembleParameters($incomingParameters)
+    {
 
-		foreach ($incomingParameters as $key => $value) {
-			switch($key){
-				case 'street_address':
-					$parameters['address']['street_address'] = $value;
-					break;
-				case 'city':
-					$parameters['address']['city'] = $value;
-					break;
-				case 'state':
-					$parameters['address']['state'] = $value;
-					break;
-				case 'zip_code':
-					$parameters['address']['zip_code'] = $value;
-					break;
-				case 'meeting_type':
-					$parameters['meeting_type'] = $value;
-					break;
-				case 'day':
-					$parameters['day'] = $value;
-					break;
-				default:
-					break;
-			}
-		}
+        $this->dayOfMeetingRequested = $incomingParameters['day'];
 
-		if (!(array_key_exists('meeting_type', $parameters))) {
-			$parameters['meeting_type'] = [];
-		}
+        if ((array_key_exists('meeting_type', $incomingParameters))) {
+            $this->meetingTypesRequested = $incomingParameters['meeting_type'];
+        }
 
-		if (
-			empty($parameters['address']['street_address']) ||
-			empty($parameters['address']['city']) ||
-			empty($parameters['address']['state']) ||
-			empty($parameters['address']['zip_code'])
-		) {
-			$parameters['address'] = null;
-		}
+        if (
+            empty($incomingParameters['street_address']) ||
+            empty($incomingParameters['city']) ||
+            empty($incomingParameters['state']) ||
+            empty($incomingParameters['zip_code'])
+        ) {
 
-		return $parameters;
-	}
+            return;
+        }
+
+        $this->streetAddress = $incomingParameters['street_address'];
+        $this->city          = $incomingParameters['city'];
+        $this->state         = $incomingParameters['state'];
+        $this->zipCode       = $incomingParameters['zip_code'];
+
+        return;
+    }
 }

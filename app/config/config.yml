@@ -7,92 +7,10 @@ imports:
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
-    states:
-        "": ""
-        AL: Alabama
-        AK: Alaska
-        AZ: Arizona
-        AR: Arkansas
-        CA: California
-        CO: Colorado
-        CT: Connecticut
-        DE: Delaware
-        FL: Florida
-        GA: Georgia
-        HI: Hawaii
-        ID: Idaho
-        IL: Illinois
-        IN: Indiana
-        IA: Iowa
-        KS: Kansas
-        KY: Kentucky
-        LA: Louisiana
-        ME: Maine
-        MD: Maryland
-        MA: Massachusetts
-        MI: Michigan
-        MN: Minnesota
-        MS: Mississippi
-        MO: Missouri
-        MT: Montana
-        NE: Nebraska
-        NV: Nevada
-        NH: New Hampshire
-        NJ: New Jersey
-        NM: New Mexico
-        NY: New York
-        NC: North Carolina
-        ND: North Dakota
-        OH: Ohio
-        OK: Oklahoma
-        OR: Oregon
-        PA: Pennsylvania
-        RI: Rhode Island
-        SC: South Carolina
-        SD: South Dakota
-        TN: Tennessee
-        TX: Texas
-        UT: Utah
-        VT: Vermont
-        VA: Virginia
-        WA: Washington
-        WV: West Virginia
-        WI: Wisconsin
-        WY: Wyoming
-        AS: American Samoa
-        DC: District Of Columbia
-        FM: Federated States Of Micronesia
-        GU: Guam
-        MH: Marshall Islands
-        MP: Northern Mariana Islands
-        PW: Palau
-        PR: Puerto Rico
-        VI: Virgin Islands
-        AE: Armed Forces Africa
-        AA: Armed Forces Americas
-        AE: Armed Forces Canada
-        AE: Armed Forces Europe
-        AE: Armed Forces Middle East
-        AP: Armed Forces Pacific
-    days:
-        "": ""
-        sunday: Sunday
-        monday: Monday
-        tuesday: Tuesday
-        wednesday: Wednesday
-        thursday: Thursday
-        friday: Friday
-        saturday: Saturday
-    meeting_types:
-        AA: Alcoholics Anonymous
-        MA: Marijuana Anonymous
-        OA: Overeaters Anonymous
-        NA: Narcotics Anonymous
-    default_origin_address:
-        street_address: 517 4th Ave.
-        city: San Diego
-        state: CA
-        zip_code: 92101
+    default_street_address: 517 4th Ave.
+    default_city: San Diego
+    default_state: CA
+    default_zip_code: 92101
 
 framework:
     #esi:             ~
@@ -124,7 +42,7 @@ twig:
 # Doctrine Configuration
 doctrine:
     dbal:
-        driver:   pdo_mysql
+        driver:   pdo_pgsql
         host:     "%database_host%"
         port:     "%database_port%"
         dbname:   "%database_name%"
@@ -142,6 +60,7 @@ doctrine:
         auto_generate_proxy_classes: "%kernel.debug%"
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
+        default_entity_manager: default
 
 # Swiftmailer Configuration
 swiftmailer:
@@ -150,3 +69,11 @@ swiftmailer:
     username:  "%mailer_user%"
     password:  "%mailer_password%"
     spool:     { type: memory }
+
+lsw_memcache:
+    session:
+        pool: default
+    pools:
+        default:
+            servers:
+              - { host: localhost, tcp_port: 11211 }
