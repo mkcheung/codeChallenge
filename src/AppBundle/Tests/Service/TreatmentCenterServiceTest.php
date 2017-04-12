@@ -703,7 +703,11 @@ class TreatmentCenterServiceTest extends WebTestCase
     {
         // NOTE: Use fully qualified namespace to circumvent issues with type-hinted method parameters
         $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->entityRepository  = Mockery::mock(EntityRepository::class);
+        $this->mockJsonRPCClient
+            ->shouldReceive('authentication')
+            ->andReturnSelf();
+
+        $this->entityRepository = Mockery::mock(EntityRepository::class);
 
         $this->mockMeetingTypesArray();
 
@@ -747,10 +751,6 @@ class TreatmentCenterServiceTest extends WebTestCase
                 'day'            => '',
             ]);
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
         $this->mockJsonRPCClient
             ->shouldReceive('execute')
             ->andReturn($this->meetingsFromDefault);
@@ -797,10 +797,6 @@ class TreatmentCenterServiceTest extends WebTestCase
                 ],
             ]);
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
         $this->mockJsonRPCClient
             ->shouldReceive('execute')
             ->andReturn($this->meetingsFromSanJoseInputData);
@@ -851,10 +847,6 @@ class TreatmentCenterServiceTest extends WebTestCase
                 ],
             ]);
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
         $this->mockJsonRPCClient
             ->shouldReceive('execute')
             ->andReturn($this->meetingsFromSanJoseInputData);
@@ -899,13 +891,8 @@ class TreatmentCenterServiceTest extends WebTestCase
                 "city"           => '',
                 "state"          => '',
                 "zip_code"       => null,
-                'day'            => ''
+                'day'            => '',
             ]);
-
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
 
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
@@ -930,13 +917,8 @@ class TreatmentCenterServiceTest extends WebTestCase
                 "city"           => '',
                 "state"          => '',
                 "zip_code"       => null,
-                'day'            => ''
+                'day'            => '',
             ]);
-
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
 
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
@@ -973,11 +955,6 @@ class TreatmentCenterServiceTest extends WebTestCase
                 ],
             ]);
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
-
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
             $this->manualAddress['zip_code']);
@@ -989,11 +966,6 @@ class TreatmentCenterServiceTest extends WebTestCase
 
     public function testExtractDesiredMeetingsDefaultByDay()
     {
-
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
 
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->sanJoseAddress['street_address'], $this->sanJoseAddress['city'], $this->sanJoseAddress['state'],
@@ -1008,11 +980,6 @@ class TreatmentCenterServiceTest extends WebTestCase
     public function testExtractDesiredMeetingsByType()
     {
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
-
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->sanJoseAddress['street_address'], $this->sanJoseAddress['city'], $this->sanJoseAddress['state'],
             $this->sanJoseAddress['zip_code']);
@@ -1025,11 +992,6 @@ class TreatmentCenterServiceTest extends WebTestCase
 
     public function testExtractDesiredMeetingsByDayAndType()
     {
-
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
 
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->sanJoseAddress['street_address'], $this->sanJoseAddress['city'], $this->sanJoseAddress['state'],
@@ -1045,11 +1007,6 @@ class TreatmentCenterServiceTest extends WebTestCase
     public function testGetLocationLatitudeLongitudeByAddress()
     {
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
-
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->originAddress['street_address'], $this->originAddress['city'], $this->originAddress['state'],
             $this->originAddress['zip_code']);
@@ -1063,11 +1020,6 @@ class TreatmentCenterServiceTest extends WebTestCase
     public function testGetLocationLatitudeLongitudeByManuallyEnteredAddress()
     {
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
-
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
             $this->manualAddress['zip_code']);
@@ -1080,11 +1032,6 @@ class TreatmentCenterServiceTest extends WebTestCase
 
     public function testCalculateMeetingDistancesFromLocation()
     {
-
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
 
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
@@ -1102,11 +1049,6 @@ class TreatmentCenterServiceTest extends WebTestCase
     public function testSortMeetingsFromOrigin()
     {
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
-
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
             $this->manualAddress['zip_code']);
@@ -1120,11 +1062,6 @@ class TreatmentCenterServiceTest extends WebTestCase
     public function testSetStreetAddress()
     {
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
-
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
             $this->manualAddress['zip_code']);
@@ -1136,11 +1073,6 @@ class TreatmentCenterServiceTest extends WebTestCase
 
     public function testSetCity()
     {
-
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
 
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
@@ -1154,11 +1086,6 @@ class TreatmentCenterServiceTest extends WebTestCase
     public function testSetZipCode()
     {
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
-
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
             $this->manualAddress['zip_code']);
@@ -1171,11 +1098,6 @@ class TreatmentCenterServiceTest extends WebTestCase
     public function testSetState()
     {
 
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
-
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
             $this->manualAddress['zip_code']);
@@ -1187,11 +1109,6 @@ class TreatmentCenterServiceTest extends WebTestCase
 
     public function testSetMeetingTypes()
     {
-
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
 
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
@@ -1206,11 +1123,6 @@ class TreatmentCenterServiceTest extends WebTestCase
 
     public function testSetDayOfMeeting()
     {
-
-        $this->mockJsonRPCClient = Mockery::mock('JsonRPC\Client');
-        $this->mockJsonRPCClient
-            ->shouldReceive('authentication')
-            ->andReturnSelf();
 
         $this->treatmentCenterService = new TreatmentCenterService($this->mockJsonRPCClient, $this->entityRepository,
             $this->manualAddress['street_address'], $this->manualAddress['city'], $this->manualAddress['state'],
