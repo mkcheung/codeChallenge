@@ -39,13 +39,13 @@ class Region {
     protected $regionAbbrev;
 
     /**
-     * @var string
+     * @var \DateTime
      * @ORM\Column(name="createdAt", type="datetime", nullable=false)
      */
     protected $createdAt;
 
     /**
-     * @var string
+     * @var \DateTime
      * @ORM\Column(name="modifiedAt", type="datetime", nullable=false)
      */
     protected $modifiedAt;
