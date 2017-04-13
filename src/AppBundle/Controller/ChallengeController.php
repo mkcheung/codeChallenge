@@ -4,17 +4,17 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\MeetingType;
 use AppBundle\Entity\Region;
-use AppBundle\Form\MeetingFilterType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use AppBundle\Form\MeetingFilterType\MeetingFilterType as MeetingFilterForm;
 
 class ChallengeController extends Controller
 {
 
     /**
-     * @Route("/challenge/")
+     * @Route("/challenge/", name="/challenge/")
      * @codeCoverageIgnore
      */
     public function indexAction()
@@ -26,7 +26,7 @@ class ChallengeController extends Controller
         $allMeetingTypes = $meetingTypeRepo->findAll();
         $allRegions      = $regionRepo->findAll();
 
-        $form = $this->createForm(MeetingFilterType::class, [$allMeetingTypes, $allRegions], [
+        $form = $this->createForm(MeetingFilterForm::class, [$allMeetingTypes, $allRegions], [
             'action' => $this->generateUrl('/challenge/meetingsFromLocation'),
             'method' => 'POST',
         ])->createView();

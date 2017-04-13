@@ -1,4 +1,9 @@
 services:
+    repository.region:
+        class: Doctrine\Orm\EntityRepository
+        factory: ['@doctrine.orm.default_entity_manager', getRepository]
+        arguments:
+            - AppBundle\Entity\Region
     repository.meeting_type:
         class: Doctrine\Orm\EntityRepository
         factory: ['@doctrine.orm.default_entity_manager', getRepository]
@@ -11,8 +16,12 @@ services:
         class: JsonRPC\Client
         factory: ['@fguillot.client', authentication]
         arguments: ['%treatment_center_user_name%', '%treatment_center_user_password%']
+    app.region_service:
+        class: AppBundle\Service\RegionService
+        arguments: ['@doctrine.orm.default_entity_manager', '@repository.region']
+    app.meeting_type_service:
+        class: AppBundle\Service\MeetingTypeService
+        arguments: ['@doctrine.orm.default_entity_manager', '@repository.meeting_type']
     app.treatment_center_service:
         class: AppBundle\Service\TreatmentCenterService
         arguments: ['@fguillot.client_authenticated', '@repository.meeting_type', '%default_street_address%', '%default_city%', '%default_state%', '%default_zip_code%']
-
-

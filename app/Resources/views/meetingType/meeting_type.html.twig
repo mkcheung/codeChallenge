@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ page_title }}</title>
+    </head>
+    <body>
+        Meeting Types:</br> {% for meetingType in meetingTypes %}
+            <span>{{ meetingType.meetingType }}</span></br>
+        {% endfor %}
+        </br>
+        <a href="/meetingType/create"/>Create Meeting Type:</a>
+    </body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ page_title }}</title>
+    </head>
+    <body>
+        Regions:</br> {% for region in regions %}
+            <span>{{ region.region }}</span></br>
+        {% endfor %}
+        </br>
+        <a href="/region/create"/>Create Region:</a>
+    </body>
+</html>
