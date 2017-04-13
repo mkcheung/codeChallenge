@@ -44,7 +44,7 @@ class RegionController extends Controller
             $regionService = $this->get('app.region_service');
             $regionService->createRegion($request);
 
-            $this->redirectToRoute('/challenge/');
+            return $this->redirect($this->generateUrl('homepage'));
         }
 
         $form = $this->createForm(RegionType\RegionCreate::class, null, [

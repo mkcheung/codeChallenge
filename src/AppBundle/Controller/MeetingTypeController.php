@@ -44,11 +44,11 @@ class MeetingTypeController extends Controller
             $meetingTypeService = $this->get('app.meeting_type_service');
             $meetingTypeService->createMeetingType($request);
 
-            $this->redirectToRoute('/challenge/');
+            return $this->redirect($this->generateUrl('/challenge/'));
         }
 
         $form = $this->createForm(MeetingTypeCreate::class, null, [
-            'action' => $this->generateUrl('/meetingType/create'),
+            'action' => $this->generateUrl('homepage'),
             'method' => 'POST',
         ])->createView();
 
