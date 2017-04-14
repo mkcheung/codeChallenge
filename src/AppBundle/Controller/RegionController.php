@@ -57,4 +57,16 @@ class RegionController extends Controller
             'form' => $form,
         ]);
     }
+
+    /**
+     * @Route("/region/delete", name="/region/delete")
+     * @codeCoverageIgnore
+     */
+    public function deleteAction(Request $request)
+    {
+        $regionService = $this->get('app.region_service');
+        $regionService->deleteRegion($request);
+
+        return $this->redirect($this->generateUrl('homepage'));
+    }
 }

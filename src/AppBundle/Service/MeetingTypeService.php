@@ -51,5 +51,10 @@ class MeetingTypeService
         Request $request
     ) {
 
+        $deleteParameters = $request->query->all();
+        $meetingType = $this->meetingTypeRepository->findOneBy(['meeting_type_id' => $deleteParameters['id']]);
+
+        $this->em->remove($meetingType);
+        $this->em->flush();
     }
 }

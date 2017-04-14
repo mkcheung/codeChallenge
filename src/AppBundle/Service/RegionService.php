@@ -18,14 +18,14 @@ class RegionService
 {
 
     private $em;
-    private $meetingTypeRepository;
+    private $regionRepository;
 
     public function __construct(
         EntityManager $entityManager,
-        EntityRepository $meetingTypeRepository
+        EntityRepository $regionRepository
     ) {
         $this->em                    = $entityManager;
-        $this->meetingTypeRepository = $meetingTypeRepository;
+        $this->regionRepository = $regionRepository;
     }
 
     public function createRegion(
@@ -49,5 +49,10 @@ class RegionService
         Request $request
     ) {
 
+        $deleteParameters = $request->query->all();
+        $region = $this->regionRepository->findOneBy(['region_id' => $deleteParameters['id']]);
+
+        $this->em->remove($region);
+        $this->em->flush();
     }
 }

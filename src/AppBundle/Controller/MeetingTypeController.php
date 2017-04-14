@@ -57,4 +57,16 @@ class MeetingTypeController extends Controller
             'form' => $form,
         ]);
     }
+
+    /**
+     * @Route("/meetingType/delete", name="/meetingType/delete")
+     * @codeCoverageIgnore
+     */
+    public function deleteAction(Request $request)
+    {
+        $regionService = $this->get('app.meeting_type_service');
+        $regionService->deleteMeetingType($request);
+
+        return $this->redirect($this->generateUrl('homepage'));
+    }
 }
