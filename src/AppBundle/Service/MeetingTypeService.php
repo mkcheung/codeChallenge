@@ -45,6 +45,13 @@ class MeetingTypeService
         Request $request
     ) {
 
+        $editParameters = $request->request->all();
+        $region = $this->meetingTypeRepository->findOneBy(['meeting_type_id' => $editParameters['id']]);
+        $region->setMeetingType($editParameters['meeting_type']);
+        $region->setMeetingTypeInitials($editParameters['meeting_type_initials']);
+
+        $this->em->persist($region);
+        $this->em->flush();
     }
 
     public function deleteMeetingType(

@@ -9,11 +9,13 @@
 namespace AppBundle\Form\RegionType;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
-class RegionCreate extends AbstractType
+class RegionEdit extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -21,6 +23,7 @@ class RegionCreate extends AbstractType
         $builder
             ->add('region', TextType::class, [])
             ->add('region_abbrev', TextType::class, [])
+            ->add('id', HiddenType::class, [])
             ->add('Submit', SubmitType::class, array(
                 'attr' => array('label' => 'Submit'),
             ));
@@ -31,4 +34,10 @@ class RegionCreate extends AbstractType
         return null;
     }
 
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'data_class' => 'AppBundle\Entity\Region'
+        ]);
+    }
 }

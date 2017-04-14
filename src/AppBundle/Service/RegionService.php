@@ -43,6 +43,13 @@ class RegionService
         Request $request
     ) {
 
+        $editParameters = $request->request->all();
+        $region = $this->regionRepository->findOneBy(['region_id' => $editParameters['id']]);
+        $region->setRegion($editParameters['region']);
+        $region->setRegionAbbrev($editParameters['region_abbrev']);
+
+        $this->em->persist($region);
+        $this->em->flush();
     }
 
     public function deleteRegion(

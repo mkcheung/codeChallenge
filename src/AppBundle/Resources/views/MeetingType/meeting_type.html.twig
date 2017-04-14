@@ -5,7 +5,7 @@
     </head>
     <body>
         Meeting Types:</br> {% for meetingType in meetingTypes %}
-            <span>{{ meetingType.meetingType }} <a href="{{ path('/meetingType/delete',{'id': meetingType.id}) }}">DELETE</a></span></br>
+            <span>{{ meetingType.meetingType }} <a href="{{ path('/meetingType/edit', {'id': meetingType.id}) }}" class="btn btn-xs btn-success">EDIT <a href="{{ path('/meetingType/delete',{'id': meetingType.id}) }}">DELETE</a></span></br>
         {% endfor %}
         </br>
         <a href="/meetingType/create"/>Create Meeting Type:</a>

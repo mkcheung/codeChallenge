@@ -10,6 +10,7 @@ namespace AppBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Form\RegionType ;
 use AppBundle\Entity\Region;
+use AppBundle\Form\RegionType\RegionEdit;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -26,7 +27,7 @@ class RegionController extends Controller
         $regionRepo = $this->getDoctrine()->getRepository(Region::class);
         $regions = $regionRepo->findAll();
 
-        return $this->render('region/region.html.twig', [
+        return $this->render('AppBundle:Region:region.html.twig', [
             'page_title'    => 'Regions',
             'regions' => $regions,
         ]);
@@ -52,8 +53,39 @@ class RegionController extends Controller
             'method' => 'POST',
         ])->createView();
 
-        return $this->render('region/create_region.html.twig', [
-            'page_title'    => 'Create Meeting Type:',
+        return $this->render('AppBundle:Region:create_region.html.twig', [
+            'page_title'    => 'Create Region:',
+            'form' => $form,
+        ]);
+    }
+
+    /**
+     * @Route("/region/edit", name="/region/edit")
+     * @codeCoverageIgnore
+     */
+    public function editAction(Request $request)
+    {
+
+        if($request->isMethod('POST')){
+
+            $regionService = $this->get('app.region_service');
+            $regionService->editRegion($request);
+
+            return $this->redirect($this->generateUrl('homepage'));
+        }
+
+        $editParameters = $request->query->all();
+        $regionRepo = $this->getDoctrine()->getRepository(Region::class);
+        $region = $regionRepo->findOneBy(['region_id' => $editParameters['id']]);
+
+        $form = $this->createForm(RegionEdit::class, $region, [
+            'action' => $this->generateUrl('/region/edit'),
+            'method' => 'POST',
+        ])->createView();
+
+        return $this->render('AppBundle:Region:edit_region.html.twig', [
+            'page_title'    => 'Edit Region:',
+            'region' => $region,
             'form' => $form,
         ]);
     }
