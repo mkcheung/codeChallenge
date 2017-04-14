@@ -1,0 +1,36 @@
+homepage:
+    path: /
+    defaults: { _controller: AppBundle:Default:index}
+
+challenge_index:
+    path: /challenge/
+    defaults: { _controller: AppBundle:Challenge:index}
+challenge_meetings_from_location:
+    path: /challenge/meetingsFromLocation
+    defaults: { _controller: AppBundle:Challenge:meetingsFromLocation}
+
+region_index:
+    path: /region/
+    defaults: { _controller: AppBundle:Region:index}
+region_create:
+    path: /region/create/
+    defaults: { _controller: AppBundle:Region:create}
+region_edit:
+    path: /region/edit/
+    defaults: { _controller: AppBundle:Region:edit}
+region_delete:
+    path: /region/delete/
+    defaults: { _controller: AppBundle:Region:delete}
+
+meeting_type_index:
+    path: /meetingType/
+    defaults: { _controller: AppBundle:MeetingType:index}
+meeting_type_create:
+    path: /meetingType/create/
+    defaults: { _controller: AppBundle:MeetingType:create}
+meeting_type_edit:
+    path: /meetingType/edit/
+    defaults: { _controller: AppBundle:MeetingType:edit}
+meeting_type_delete:
+    path: /meetingType/delete/
+    defaults: { _controller: AppBundle:MeetingType:delete}

@@ -14,10 +14,6 @@ use AppBundle\Form\MeetingFilterType\MeetingFilterType as MeetingFilterForm;
 class ChallengeController extends Controller
 {
 
-    /**
-     * @Route("/challenge/", name="/challenge/")
-     * @codeCoverageIgnore
-     */
     public function indexAction()
     {
 
@@ -28,7 +24,7 @@ class ChallengeController extends Controller
         $allRegions      = $regionRepo->findAll();
 
         $form = $this->createForm(MeetingFilterForm::class, [$allMeetingTypes, $allRegions], [
-            'action' => $this->generateUrl('/challenge/meetingsFromLocation'),
+            'action' => $this->generateUrl('challenge_meetings_from_location'),
             'method' => 'POST',
         ])->createView();
 
@@ -38,9 +34,7 @@ class ChallengeController extends Controller
         ]);
     }
 
-    /**
-     * @Route("/challenge/meetingsFromLocation", name="/challenge/meetingsFromLocation")
-     */
+
     public function meetingsFromLocationAction(Request $request)
     {
         /** @var TreatmentCenterService $treatmentCenterService */

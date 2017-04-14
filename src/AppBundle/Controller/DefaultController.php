@@ -11,7 +11,6 @@ class DefaultController extends Controller
 {
 
     /**
-     * @Route("/", name="homepage")
      * @codeCoverageIgnore
      */
     public function indexAction(Request $request)

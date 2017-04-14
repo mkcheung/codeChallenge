@@ -17,10 +17,6 @@ use Symfony\Component\HttpFoundation\Request;
 class RegionController extends Controller
 {
 
-    /**
-     * @Route("/region/", name="/region/")
-     * @codeCoverageIgnore
-     */
     public function indexAction()
     {
 
@@ -33,10 +29,6 @@ class RegionController extends Controller
         ]);
     }
 
-    /**
-     * @Route("/region/create", name="/region/create")
-     * @codeCoverageIgnore
-     */
     public function createAction(Request $request)
     {
 
@@ -49,7 +41,7 @@ class RegionController extends Controller
         }
 
         $form = $this->createForm(RegionType\RegionCreate::class, null, [
-            'action' => $this->generateUrl('/region/create'),
+            'action' => $this->generateUrl('region_create'),
             'method' => 'POST',
         ])->createView();
 
@@ -59,10 +51,6 @@ class RegionController extends Controller
         ]);
     }
 
-    /**
-     * @Route("/region/edit", name="/region/edit")
-     * @codeCoverageIgnore
-     */
     public function editAction(Request $request)
     {
 
@@ -79,7 +67,7 @@ class RegionController extends Controller
         $region = $regionRepo->findOneBy(['region_id' => $editParameters['id']]);
 
         $form = $this->createForm(RegionEdit::class, $region, [
-            'action' => $this->generateUrl('/region/edit'),
+            'action' => $this->generateUrl('region_edit'),
             'method' => 'POST',
         ])->createView();
 
@@ -90,10 +78,6 @@ class RegionController extends Controller
         ]);
     }
 
-    /**
-     * @Route("/region/delete", name="/region/delete")
-     * @codeCoverageIgnore
-     */
     public function deleteAction(Request $request)
     {
         $regionService = $this->get('app.region_service');

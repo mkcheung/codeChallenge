@@ -5,7 +5,7 @@
     </head>
     <body>
         Regions:</br> {% for region in regions %}
-            <span>{{ region.region }} <a href="{{ path('/region/edit', {'id': region.id}) }}" class="btn btn-xs btn-success">EDIT</a> <a href="{{ path('/region/delete',{'id': region.id}) }}">DELETE</a></span></br>
+            <span>{{ region.region }} <a href="{{ path('region_edit', {'id': region.id}) }}" class="btn btn-xs btn-success">EDIT</a> <a href="{{ path('region_delete',{'id': region.id}) }}">DELETE</a></span></br>
         {% endfor %}
         </br>
         <a href="/region/create"/>Create Region:</a>

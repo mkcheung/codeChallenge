@@ -11,9 +11,6 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 class MeetingFilterType extends AbstractType
 {
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
