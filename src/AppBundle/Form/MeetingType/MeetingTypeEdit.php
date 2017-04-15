@@ -21,8 +21,12 @@ class MeetingTypeEdit extends AbstractType
     {
 
         $builder
-            ->add('meeting_type', TextType::class, [])
-            ->add('meeting_type_initials', TextType::class, [])
+            ->add('meeting_type', TextType::class, [
+                'required' => false
+            ])
+            ->add('meeting_type_initials', TextType::class, [
+                'required' => false
+            ])
             ->add('id', HiddenType::class, [])
             ->add('Submit', SubmitType::class, array(
                 'attr' => array('label' => 'Submit'),

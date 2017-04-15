@@ -21,8 +21,12 @@ class RegionEdit extends AbstractType
     {
 
         $builder
-            ->add('region', TextType::class, [])
-            ->add('region_abbrev', TextType::class, [])
+            ->add('region', TextType::class, [
+                'required' => false
+            ])
+            ->add('region_abbrev', TextType::class, [
+                'required' => false
+            ])
             ->add('id', HiddenType::class, [])
             ->add('Submit', SubmitType::class, array(
                 'attr' => array('label' => 'Submit'),
