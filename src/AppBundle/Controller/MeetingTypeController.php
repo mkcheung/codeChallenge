@@ -37,6 +37,11 @@ class MeetingTypeController extends Controller
             $meetingTypeService = $this->get('app.meeting_type_service');
             $meetingTypeService->createMeetingType($request);
 
+            $this->addFlash(
+                'notice',
+                'Meeting type created!'
+            );
+
             return $this->redirect($this->generateUrl('homepage'));
         }
 
@@ -58,6 +63,11 @@ class MeetingTypeController extends Controller
 
             $meetingTypeService = $this->get('app.meeting_type_service');
             $meetingTypeService->editMeetingType($request);
+
+            $this->addFlash(
+                'notice',
+                'Meeting type modified!'
+            );
 
             return $this->redirect($this->generateUrl('homepage'));
         }
@@ -81,6 +91,11 @@ class MeetingTypeController extends Controller
     {
         $regionService = $this->get('app.meeting_type_service');
         $regionService->deleteMeetingType($request);
+
+        $this->addFlash(
+            'notice',
+            'Meeting type deleted!'
+        );
 
         return $this->redirect($this->generateUrl('homepage'));
     }

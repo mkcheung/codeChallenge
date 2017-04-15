@@ -4,6 +4,11 @@
         <title>Code Challenge</title>
     </head>
     <body>
+        {% for flash_message in app.session.flashBag.get('notice') %}
+            <div class="flash-notice">
+                {{ flash_message }}
+            </div>
+        {% endfor %}
         <a href="/challenge">Select Address:</a></br>
         <a href="/meetingType">Meeting Types:</a></br>
         <a href="/region">Regions:</a></br>

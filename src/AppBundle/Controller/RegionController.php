@@ -37,6 +37,11 @@ class RegionController extends Controller
             $regionService = $this->get('app.region_service');
             $regionService->createRegion($request);
 
+            $this->addFlash(
+                'notice',
+                'Region created!'
+            );
+
             return $this->redirect($this->generateUrl('homepage'));
         }
 
@@ -58,6 +63,11 @@ class RegionController extends Controller
 
             $regionService = $this->get('app.region_service');
             $regionService->editRegion($request);
+
+            $this->addFlash(
+                'notice',
+                'Region modified!'
+            );
 
             return $this->redirect($this->generateUrl('homepage'));
         }
@@ -82,6 +92,11 @@ class RegionController extends Controller
     {
         $regionService = $this->get('app.region_service');
         $regionService->deleteRegion($request);
+
+        $this->addFlash(
+            'notice',
+            'Region deleted!'
+        );
 
         return $this->redirect($this->generateUrl('homepage'));
     }
