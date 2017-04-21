@@ -13,14 +13,16 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use AppBundle\Service\Traits\ValidatorTrait;
 
 
 class MeetingTypeService
 {
 
+    use ValidatorTrait;
+
     private $em;
     private $meetingTypeRepository;
-    private $validator;
 
     public function __construct(
         EntityManager $entityManager,
@@ -40,7 +42,11 @@ class MeetingTypeService
         $inputParameters = $request->request->all();
         $meetingType = new MeetingType($inputParameters['meeting_type'], $inputParameters['meeting_type_initials']);
 
-        $validationErrors = $this->validator->validate($meetingType);
+        $errors = $this->validateEntity($meetingType);
+
+        if(count($errors) > 0){
+            return $errors;
+        }
 
         $this->em->persist($meetingType);
         $this->em->flush();
@@ -55,7 +61,11 @@ class MeetingTypeService
         $meetingType->setMeetingType($editParameters['meeting_type']);
         $meetingType->setMeetingTypeInitials($editParameters['meeting_type_initials']);
 
-        $validationErrors = $this->validator->validate($meetingType);
+        $errors = $this->validateEntity($meetingType);
+
+        if(count($errors) > 0){
+            return $errors;
+        }
 
         $this->em->persist($meetingType);
         $this->em->flush();

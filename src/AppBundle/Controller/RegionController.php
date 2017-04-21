@@ -35,12 +35,21 @@ class RegionController extends Controller
         if($request->isMethod('POST')){
 
             $regionService = $this->get('app.region_service');
-            $regionService->createRegion($request);
+            $errors = $regionService->createRegion($request);
 
-            $this->addFlash(
-                'notice',
-                'Region created!'
-            );
+            if(count($errors) > 0){
+
+                $this->addFlash(
+                    'notice',
+                    implode(", ", $errors)
+                );
+            } else {
+
+                $this->addFlash(
+                    'notice',
+                    'Region created!'
+                );
+            }
 
             return $this->redirect($this->generateUrl('homepage'));
         }
@@ -62,12 +71,21 @@ class RegionController extends Controller
         if($request->isMethod('POST')){
 
             $regionService = $this->get('app.region_service');
-            $regionService->editRegion($request);
+            $errors = $regionService->editRegion($request);
 
-            $this->addFlash(
-                'notice',
-                'Region modified!'
-            );
+            if(count($errors) > 0){
+
+                $this->addFlash(
+                    'notice',
+                    implode(", ", $errors)
+                );
+            } else {
+
+                $this->addFlash(
+                    'notice',
+                    'Region modified!'
+                );
+            }
 
             return $this->redirect($this->generateUrl('homepage'));
         }

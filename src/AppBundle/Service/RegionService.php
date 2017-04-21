@@ -13,13 +13,15 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use AppBundle\Service\Traits\ValidatorTrait;
 
 class RegionService
 {
 
+    use ValidatorTrait;
+
     private $em;
     private $regionRepository;
-    private $validator;
 
     public function __construct(
         EntityManager $entityManager,
@@ -34,11 +36,14 @@ class RegionService
     public function createRegion(
         Request $request
     ) {
-
         $inputParameters  = $request->request->all();
         $region           = new Region($inputParameters['region'], $inputParameters['region_abbrev']);
 
-        $validationErrors = $this->validator->validate($region);
+        $errors = $this->validateEntity($region);
+
+        if(count($errors) > 0){
+            return $errors;
+        }
 
         $this->em->persist($region);
         $this->em->flush();
@@ -53,7 +58,11 @@ class RegionService
         $region->setRegion($editParameters['region']);
         $region->setRegionAbbrev($editParameters['region_abbrev']);
 
-        $validationErrors = $this->validator->validate($region);
+        $errors = $this->validateEntity($region);
+
+        if(count($errors) > 0){
+            return $errors;
+        }
 
         $this->em->persist($region);
         $this->em->flush();
@@ -69,4 +78,5 @@ class RegionService
         $this->em->remove($region);
         $this->em->flush();
     }
+
 }

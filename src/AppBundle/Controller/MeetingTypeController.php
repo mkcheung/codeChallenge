@@ -35,12 +35,21 @@ class MeetingTypeController extends Controller
         if ($request->isMethod('POST')) {
 
             $meetingTypeService = $this->get('app.meeting_type_service');
-            $meetingTypeService->createMeetingType($request);
+            $errors = $meetingTypeService->createMeetingType($request);
 
-            $this->addFlash(
-                'notice',
-                'Meeting type created!'
-            );
+            if(count($errors) > 0){
+
+                $this->addFlash(
+                    'notice',
+                    implode(", ", $errors)
+                );
+            } else {
+
+                $this->addFlash(
+                    'notice',
+                    'Meeting Type created!'
+                );
+            }
 
             return $this->redirect($this->generateUrl('homepage'));
         }
@@ -62,12 +71,21 @@ class MeetingTypeController extends Controller
         if ($request->isMethod('POST')) {
 
             $meetingTypeService = $this->get('app.meeting_type_service');
-            $meetingTypeService->editMeetingType($request);
+            $errors = $meetingTypeService->editMeetingType($request);
 
-            $this->addFlash(
-                'notice',
-                'Meeting type modified!'
-            );
+            if(count($errors) > 0){
+
+                $this->addFlash(
+                    'notice',
+                    implode(", ", $errors)
+                );
+            } else {
+
+                $this->addFlash(
+                    'notice',
+                    'Meeting Type modified!'
+                );
+            }
 
             return $this->redirect($this->generateUrl('homepage'));
         }
