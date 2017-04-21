@@ -40,13 +40,13 @@ class MeetingTypeController extends Controller
             if(count($errors) > 0){
 
                 $this->addFlash(
-                    'notice',
+                    'warning',
                     implode(", ", $errors)
                 );
             } else {
 
                 $this->addFlash(
-                    'notice',
+                    'success',
                     'Meeting Type created!'
                 );
             }
@@ -76,13 +76,13 @@ class MeetingTypeController extends Controller
             if(count($errors) > 0){
 
                 $this->addFlash(
-                    'notice',
+                    'warning',
                     implode(", ", $errors)
                 );
             } else {
 
                 $this->addFlash(
-                    'notice',
+                    'success',
                     'Meeting Type modified!'
                 );
             }
@@ -111,7 +111,7 @@ class MeetingTypeController extends Controller
         $regionService->deleteMeetingType($request);
 
         $this->addFlash(
-            'notice',
+            'success',
             'Meeting type deleted!'
         );
 

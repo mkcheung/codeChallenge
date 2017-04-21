@@ -40,13 +40,13 @@ class RegionController extends Controller
             if(count($errors) > 0){
 
                 $this->addFlash(
-                    'notice',
+                    'warning',
                     implode(", ", $errors)
                 );
             } else {
 
                 $this->addFlash(
-                    'notice',
+                    'success',
                     'Region created!'
                 );
             }
@@ -76,13 +76,13 @@ class RegionController extends Controller
             if(count($errors) > 0){
 
                 $this->addFlash(
-                    'notice',
+                    'warning',
                     implode(", ", $errors)
                 );
             } else {
 
                 $this->addFlash(
-                    'notice',
+                    'success',
                     'Region modified!'
                 );
             }
@@ -112,7 +112,7 @@ class RegionController extends Controller
         $regionService->deleteRegion($request);
 
         $this->addFlash(
-            'notice',
+            'success',
             'Region deleted!'
         );
 
