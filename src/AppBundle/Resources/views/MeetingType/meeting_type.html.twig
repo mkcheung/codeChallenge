@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ page_title }}</title>
+    </head>
+    <body>
+        Meeting Types:</br> {% for meetingType in meetingTypes %}
+            <span>{{ meetingType.meetingType }} <a href="{{ path('meeting_type_edit', {'id': meetingType.id}) }}" class="btn btn-xs btn-success">EDIT <a href="{{ path('meeting_type_delete',{'id': meetingType.id}) }}">DELETE</a></span></br>
+        {% endfor %}
+        </br>
+        <a href="/meetingType/create"/>Create Meeting Type:</a>
+    </body>
+</html>

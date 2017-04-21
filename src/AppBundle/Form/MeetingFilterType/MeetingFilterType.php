@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Form;
+namespace AppBundle\Form\MeetingFilterType;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -11,9 +11,6 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 class MeetingFilterType extends AbstractType
 {
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 

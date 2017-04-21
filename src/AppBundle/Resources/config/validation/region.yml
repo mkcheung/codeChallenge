@@ -1,0 +1,8 @@
+AppBundle\Entity\Region:
+    properties:
+        region:
+            - NotNull: ~
+            - NotBlank: ~
+        regionAbbrev:
+            - NotNull: ~
+            - NotBlank: ~

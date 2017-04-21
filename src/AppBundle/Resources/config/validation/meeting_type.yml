@@ -1,0 +1,8 @@
+AppBundle\Entity\MeetingType:
+    properties:
+        meetingType:
+            - NotNull: ~
+            - NotBlank: ~
+        meetingTypeInitials:
+            - NotNull: ~
+            - NotBlank: ~

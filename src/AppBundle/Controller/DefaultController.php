@@ -11,11 +11,10 @@ class DefaultController extends Controller
 {
 
     /**
-     * @Route("/", name="homepage")
      * @codeCoverageIgnore
      */
     public function indexAction(Request $request)
     {
-        return $this->render('default/main.html.twig', array());
+        return $this->render('AppBundle:Default:main.html.twig', array());
     }
 }
