@@ -210,24 +210,17 @@ class TreatmentCenterService
         }
         $cacheKey = '';
 
-        $cacheKey .= $inputParameters['street_address'];
-        $cacheKey .= $inputParameters['city'];
-        $cacheKey .= $inputParameters['state'];
-        $cacheKey .= $inputParameters['zip_code'];
-        $cacheKey .= $inputParameters['day'];
+        $cacheKey = implode('',[$inputParameters['street_address'],$inputParameters['city'],$inputParameters['state'],$inputParameters['zip_code'],$inputParameters['day']]);
 
         if (!empty($inputParameters['meeting_type'])) {
-            $meetingTypes = $inputParameters['meeting_type'];
-            foreach ($meetingTypes as $meetingType) {
-                $cacheKey .= $meetingType;
-            }
+            $cacheKey = implode('',$inputParameters['meeting_type']);
         }
 
         if(empty($cacheKey)){
-            return 'default';
+            $cacheKey = 'default';
         }
 
-        return $cacheKey;
+        return md5($cacheKey);
     }
 
     public function setStreetAddress($streetAddress){
