@@ -208,8 +208,8 @@ class TreatmentCenterService
         if (empty($inputParameters)) {
             $inputParameters = $request->query->all();
         }
-        $cacheKey = '';
 
+        $cacheKey = '';
         $cacheKey = implode('',[$inputParameters['street_address'],$inputParameters['city'],$inputParameters['state'],$inputParameters['zip_code'],$inputParameters['day']]);
 
         if (!empty($inputParameters['meeting_type'])) {

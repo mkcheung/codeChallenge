@@ -900,7 +900,7 @@ class TreatmentCenterServiceTest extends WebTestCase
 
         $cacheKey = $this->treatmentCenterService->assembleCacheKey($mockRequest);
 
-        $this->assertEquals('default', $cacheKey);
+        $this->assertEquals('c21f969b5f03d33d43e04f8f136e7682', $cacheKey);
     }
 
     public function testAssembleCacheKeyDefaultEntryViaPost()
@@ -926,7 +926,7 @@ class TreatmentCenterServiceTest extends WebTestCase
 
         $cacheKey = $this->treatmentCenterService->assembleCacheKey($mockRequest);
 
-        $this->assertEquals('default', $cacheKey);
+        $this->assertEquals('c21f969b5f03d33d43e04f8f136e7682', $cacheKey);
     }
 
     public function testAssembleCacheKeyManualAddressEntry()
@@ -961,7 +961,7 @@ class TreatmentCenterServiceTest extends WebTestCase
 
         $cacheKey = $this->treatmentCenterService->assembleCacheKey($mockRequest);
 
-        $this->assertEquals('502 South Park Dr.San JoseCA95129thursdayAA', $cacheKey);
+        $this->assertEquals('3b98e2dffc6cb06a89dcb0d5c60a0206', $cacheKey);
     }
 
     public function testExtractDesiredMeetingsDefaultByDay()
