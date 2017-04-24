@@ -7,9 +7,12 @@
  */
 namespace AppBundle\Service\Traits;
 
+use Guzzle\Service\Description\ValidatorInterface;
+
 trait ValidatorTrait
 {
 
+    /** @var ValidatorInterface $validator */
     protected $validator;
 
     protected function validateEntity($entity){
@@ -19,7 +22,7 @@ trait ValidatorTrait
         for($i = 0 ; $i < count($validationErrors) ; $i++){
             $error = $validationErrors->get($i);
             $property = $error->getPropertyPath();
-            $errors[] = $property.': '.$error;
+            $errors[] = $property.': '.$error->getMessage();
         }
         return $errors;
     }
