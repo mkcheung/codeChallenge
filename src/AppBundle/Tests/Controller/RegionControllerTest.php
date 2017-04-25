@@ -141,9 +141,9 @@ class RegionControllerTest extends WebTestCase
         $regionController
             ->setContainer($controllerContainer);
 
-        $something = $regionController->createAction($mockRequest);
-        $this->assertInstanceof(RedirectResponse::class, $something);
-        $this->assertEquals('/', $something->getTargetUrl());
+        $createActionResponse = $regionController->createAction($mockRequest);
+        $this->assertInstanceof(RedirectResponse::class, $createActionResponse);
+        $this->assertEquals('/', $createActionResponse->getTargetUrl());
     }
 
     public function testCreateActionErrorsFound()

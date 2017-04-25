@@ -3,14 +3,22 @@
 namespace AppBundle\Tests\Controller;
 
 use AppBundle\Controller as AppBundleControllers;
+use AppBundle\Entity\MeetingType;
+use AppBundle\Entity\Region;
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Component\DependencyInjection\Container;
 use AppBundle\Service\TreatmentCenterService;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Bundle\TwigBundle\TwigEngine;
 use Mockery;
+use Symfony\Component\Routing\Router;
 
 class ChallengeControllerTest extends WebTestCase
 {
@@ -90,6 +98,106 @@ class ChallengeControllerTest extends WebTestCase
         $this->mockTwigEngine             = Mockery::mock(TwigEngine::class);
 
         $this->mockMemcacheService = Mockery::mock(\Memcache::class);
+    }
+
+    private function prepMeetingTypeTestData()
+    {
+        $meetingType1 = new MeetingType('Alcoholics Anonymous', 'AA');
+        $meetingType2 = new MeetingType('Marijuana Anonymous', 'MA');
+
+        return [$meetingType1, $meetingType2];
+    }
+
+    private function prepRegionTestData()
+    {
+        $region1 = new Region('California', 'CA');
+        $region2 = new Region('Arizona', 'AZ');
+
+        return [$region1, $region2];
+    }
+
+    public function testIndexAction()
+    {
+        $mockMeetingTypeRepo = Mockery::mock(EntityRepository::class);
+        $mockRegionRepo      = Mockery::mock(EntityRepository::class);
+        $mockResponse        = Mockery::mock(Response::class);
+        $controllerContainer = Mockery::mock(Container::class);
+
+        $mockRegionRepo
+            ->shouldReceive('findAll')
+            ->andReturn($this->prepRegionTestData());
+
+        $mockMeetingTypeRepo
+            ->shouldReceive('findAll')
+            ->andReturn($this->prepMeetingTypeTestData());
+
+        $mockRegistry = Mockery::mock(Registry::class);
+        $mockRegistry
+            ->shouldReceive('getRepository')
+            ->andReturn($mockRegionRepo);
+        $mockRegistry
+            ->shouldReceive('getRepository')
+            ->andReturn($mockMeetingTypeRepo);
+
+        $controllerContainer
+            ->shouldReceive('has')
+            ->with('doctrine')
+            ->andReturn(true);
+
+        $controllerContainer
+            ->shouldReceive('get')
+            ->with('doctrine')
+            ->andReturn($mockRegistry);
+
+        $mockTwigEngine = Mockery::mock(TwigEngine::class);
+        $mockTwigEngine
+            ->shouldReceive('renderResponse')
+            ->andReturn($mockResponse);
+
+        $mockFormView = Mockery::mock(FormView::class);
+        $mockForm     = Mockery::mock(Form::class);
+        $mockForm
+            ->shouldReceive('createView')
+            ->andReturn($mockFormView);
+        $mockFormFactory = Mockery::mock(FormFactory::class);
+        $mockFormFactory
+            ->shouldReceive('create')
+            ->andReturn($mockForm);
+
+        $controllerContainer
+            ->shouldReceive('has')
+            ->with('templating')
+            ->andReturn(true);
+
+        $controllerContainer
+            ->shouldReceive('get')
+            ->with('templating')
+            ->andReturn($mockTwigEngine);
+
+        $controllerContainer
+            ->shouldReceive('get')
+            ->with('form.factory')
+            ->andReturn($mockFormFactory);
+
+        $controllerContainer
+            ->shouldReceive('createForm')
+            ->andReturn($mockForm);
+
+        $mockRouter = Mockery::mock(Router::class);
+        $mockRouter
+            ->shouldReceive('generate')
+            ->andReturn('/challenge/meetingsFromLocation');
+
+        $controllerContainer
+            ->shouldReceive('get')
+            ->with('router')
+            ->andReturn($mockRouter);
+
+        $this->challengeController
+            ->setContainer($controllerContainer);
+
+        $indexActionResponse = $this->challengeController->indexAction();
+        $this->assertInstanceof(Response::class, $indexActionResponse);
     }
 
     public function testMeetingsFromLocationAction()
